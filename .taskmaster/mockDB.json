@@ -1,0 +1,98 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Admin User",
+      "email": "admin@example.com",
+      "password": "admin123",
+      "role": "admin"
+    },
+    {
+      "id": 2,
+      "name": "Regular User",
+      "email": "user@example.com",
+      "password": "user123",
+      "role": "user"
+    }
+  ],
+  "accounts": [
+    {
+      "id": 1,
+      "userId": 1,
+      "accountNumber": "ACC-001",
+      "type": "checking",
+      "balance": -2000,
+      "pendingBalance": 0
+    },
+    {
+      "id": 2,
+      "userId": 2,
+      "accountNumber": "ACC-002",
+      "type": "checking",
+      "balance": 31000,
+      "pendingBalance": 0
+    }
+  ],
+  "transactions": [
+    {
+      "date": "2025-06-04T13:38",
+      "type": "admin-increase",
+      "amount": 10000,
+      "senderAccount": "34875627566",
+      "receiverAccount": "ACC-002",
+      "description": "Admin deposit",
+      "status": "approved",
+      "id": 1
+    },
+    {
+      "date": "2025-06-04T13:48",
+      "type": "transfer",
+      "amount": 20000,
+      "senderAccount": "378349844133",
+      "receiverAccount": "ACC-002",
+      "description": "transfer transaction",
+      "status": "pending",
+      "id": 2
+    },
+    {
+      "date": "2025-06-04T13:53:51.315Z",
+      "type": "admin-decrease",
+      "amount": 1000,
+      "senderAccount": "ACC-002",
+      "receiverAccount": "ADMIN",
+      "description": "Balance decrease",
+      "status": "approved",
+      "id": 3
+    }
+  ],
+  "notifications": [
+    {
+      "id": 1,
+      "userId": 2,
+      "type": "success",
+      "title": "Transfer Complete",
+      "message": "Your transfer of $250 to ACC-003 was successful.",
+      "isRead": false,
+      "timestamp": "2024-04-02T14:45:30Z"
+    },
+    {
+      "id": 2,
+      "userId": 2,
+      "type": "info",
+      "title": "Security Alert",
+      "message": "Your password will expire in 10 days. Please update it.",
+      "isRead": false,
+      "timestamp": "2024-04-03T08:00:00Z"
+    },
+    {
+      "id": 3,
+      "userId": 3,
+      "type": "alert",
+      "title": "Low Balance",
+      "message": "Your account balance is below $1000.",
+      "isRead": true,
+      "timestamp": "2024-04-04T16:25:00Z"
+    }
+  ],
+  "initialized": true
+}
