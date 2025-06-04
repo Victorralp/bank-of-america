@@ -332,7 +332,7 @@ export default function LoginPage() {
           </div>
 
           <div style={styles.footer}>
-            Don't have an account? <Link href="#" style={styles.link}>Sign Up</Link>
+            Don&apos;t have an account? <Link href="#" style={styles.link}>Sign Up</Link>
             <span style={styles.separator}>|</span>
             <Link href="#" style={styles.link}>Privacy Policy</Link>
           </div>

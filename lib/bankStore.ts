@@ -27,8 +27,8 @@ export interface BankState {
 const initialData = loadMockData();
 
 // Global initialization flags to prevent multiple initializations
-let isInitializing = false;
-let hasInitialized = false;
+const isInitializing = false;
+const hasInitialized = false;
 
 const useBankStore = create<BankState>((set, get) => ({
   // Initialize with data immediately to avoid empty arrays

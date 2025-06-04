@@ -159,7 +159,7 @@ export function SecurityPanel({ user, onUserUpdate }: SecurityPanelProps) {
         <ul className="text-sm text-gray-600 space-y-1">
           <li>• Use a strong password with at least 8 characters</li>
           <li>• Include uppercase, lowercase, numbers, and symbols</li>
-          <li>• Don't reuse passwords from other accounts</li>
+          <li>• Don&apos;t reuse passwords from other accounts</li>
           <li>• Log out when using shared computers</li>
         </ul>
       </div>
