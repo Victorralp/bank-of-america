@@ -1,71 +1,33 @@
 "use client"
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Transaction } from '@/lib/mockData'
 import { format } from 'date-fns'
+import styles from './ui/transactions-styles.module.css'
 
 interface TransactionListProps {
   transactions: Transaction[]
 }
 
-const styles = {
-  container: {
-    backgroundColor: 'white',
-    borderRadius: '10px',
-    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)',
-    overflow: 'hidden',
-  },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse' as const,
-  },
-  th: {
-    backgroundColor: '#f8fafc',
-    padding: '12px 16px',
-    textAlign: 'left' as const,
-    fontSize: '14px',
-    fontWeight: 'bold',
-    color: '#64748b',
-    borderBottom: '1px solid #e2e8f0',
-  },
-  td: {
-    padding: '12px 16px',
-    fontSize: '14px',
-    color: '#334155',
-    borderBottom: '1px solid #e2e8f0',
-  },
-  status: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    padding: '4px 8px',
-    borderRadius: '12px',
-    fontSize: '12px',
-    fontWeight: 'bold',
-  },
-  pending: {
-    backgroundColor: '#fff3e0',
-    color: '#e65100',
-  },
-  approved: {
-    backgroundColor: '#e8f5e9',
-    color: '#2e7d32',
-  },
-  rejected: {
-    backgroundColor: '#ffebee',
-    color: '#c62828',
-  },
-  amount: {
-    fontWeight: 'bold',
-  },
-  positive: {
-    color: '#2e7d32',
-  },
-  negative: {
-    color: '#c62828',
-  },
-}
-
 export function TransactionList({ transactions }: TransactionListProps) {
+  const [isMobile, setIsMobile] = useState(false)
+
+  // Check for mobile viewport on mount and window resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    
+    // Initial check
+    checkMobile()
+    
+    // Add event listener for window resize
+    window.addEventListener('resize', checkMobile)
+    
+    // Clean up
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
   const formatDate = (dateString: string) => {
     return format(new Date(dateString), 'MMM d, yyyy h:mm a')
   }
@@ -99,24 +61,30 @@ export function TransactionList({ transactions }: TransactionListProps) {
     
     return (
       <span style={{ 
-        ...styles.amount, 
-        ...(isPositive ? styles.positive : styles.negative) 
+        fontWeight: 'bold',
+        color: isPositive ? '#2e7d32' : '#c62828'
       }}>
         {isPositive ? '+' : '-'}{formattedAmount}
       </span>
     )
   }
 
-  const getStatusStyle = (status: string) => {
+  const getStatusClassName = (status: string) => {
     switch (status) {
       case 'pending':
-        return styles.pending
+        return styles.badgePending
       case 'approved':
-        return styles.approved
+        return styles.badgeApproved
       case 'rejected':
-        return styles.rejected
+        return styles.badgeRejected
+      case 'completed':
+        return styles.badgeCompleted
+      case 'failed':
+        return styles.badgeFailed
+      case 'error':
+        return styles.badgeError
       default:
-        return {}
+        return ''
     }
   }
 
@@ -140,41 +108,93 @@ export function TransactionList({ transactions }: TransactionListProps) {
   }
 
   return (
-    <div style={styles.container}>
-      {transactions.length > 0 ? (
-        <table style={styles.table}>
-          <thead>
-            <tr>
-              <th style={styles.th}>Date</th>
-              <th style={styles.th}>Type</th>
-              <th style={styles.th}>Amount</th>
-              <th style={styles.th}>From/To</th>
-              <th style={styles.th}>Description</th>
-              <th style={styles.th}>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {transactions.map((transaction) => (
-              <tr key={transaction.id}>
-                <td style={styles.td}>{formatDate(transaction.date)}</td>
-                <td style={styles.td}>{formatTransactionType(transaction.type)}</td>
-                <td style={styles.td}>{formatAmount(transaction.amount, transaction.type)}</td>
-                <td style={styles.td}>{formatSenderReceiver(transaction)}</td>
-                <td style={styles.td}>{transaction.description}</td>
-                <td style={styles.td}>
-                  <span style={{ ...styles.status, ...getStatusStyle(transaction.status) }}>
-                    {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
-                  </span>
-                </td>
+    <>
+      {/* Desktop table view */}
+      <div className={`${styles.tableContainer} ${styles.desktopTable}`}>
+        {transactions.length > 0 ? (
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th className={styles.tableHeader}>Date</th>
+                <th className={styles.tableHeader}>Type</th>
+                <th className={styles.tableHeader}>Amount</th>
+                <th className={styles.tableHeader}>From/To</th>
+                <th className={styles.tableHeader}>Description</th>
+                <th className={styles.tableHeader}>Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : (
-        <div style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>
-          No transactions found
-        </div>
-      )}
-    </div>
+            </thead>
+            <tbody>
+              {transactions.map((transaction) => (
+                <tr key={transaction.id}>
+                  <td className={styles.tableCell}>{formatDate(transaction.date)}</td>
+                  <td className={styles.tableCell}>{formatTransactionType(transaction.type)}</td>
+                  <td className={styles.tableCell}>{formatAmount(transaction.amount, transaction.type)}</td>
+                  <td className={styles.tableCell}>{formatSenderReceiver(transaction)}</td>
+                  <td className={styles.tableCell}>{transaction.description}</td>
+                  <td className={styles.tableCell}>
+                    <span className={`${styles.badge} ${getStatusClassName(transaction.status)}`}>
+                      {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <div style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>
+            No transactions found
+          </div>
+        )}
+      </div>
+
+      {/* Mobile card view */}
+      <div className={styles.mobileCards}>
+        {transactions.length > 0 ? (
+          transactions.map((transaction) => (
+            <div key={transaction.id} className={styles.mobileCard}>
+              <div className={styles.mobileCardHeader}>
+                <div className={styles.mobileCardTitle}>
+                  {formatTransactionType(transaction.type)}
+                </div>
+                <span className={`${styles.badge} ${getStatusClassName(transaction.status)}`}>
+                  {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
+                </span>
+              </div>
+              
+              <div className={styles.mobileCardDate}>
+                {formatDate(transaction.date)}
+              </div>
+              
+              <div className={styles.mobileCardItem}>
+                <div className={styles.mobileCardLabel}>Amount:</div>
+                <div className={styles.mobileCardValue}>
+                  {formatAmount(transaction.amount, transaction.type)}
+                </div>
+              </div>
+              
+              <div className={styles.mobileCardItem}>
+                <div className={styles.mobileCardLabel}>From/To:</div>
+                <div className={styles.mobileCardValue}>
+                  {formatSenderReceiver(transaction)}
+                </div>
+              </div>
+              
+              {transaction.description && (
+                <div className={styles.mobileCardItem}>
+                  <div className={styles.mobileCardLabel}>Description:</div>
+                  <div className={styles.mobileCardValue}>
+                    {transaction.description}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))
+        ) : (
+          <div style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>
+            No transactions found
+          </div>
+        )}
+      </div>
+    </>
   )
 } 

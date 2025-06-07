@@ -87,9 +87,14 @@ const styles = {
     cursor: 'pointer',
     transition: 'background-color 0.2s',
   },
+  tableContainer: {
+    width: '100%',
+    overflowX: 'auto' as const,
+  },
   table: {
     width: '100%',
     borderCollapse: 'collapse' as const,
+    minWidth: '650px', // Ensures table doesn't compress too much
   },
   tableHeader: {
     textAlign: 'left' as const,
@@ -146,6 +151,7 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1000,
+    overflow: 'auto',
   },
   modalContent: {
     backgroundColor: 'white',
@@ -153,7 +159,10 @@ const styles = {
     boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
     width: '100%',
     maxWidth: '500px',
-    padding: '30px',
+    maxHeight: '90vh',
+    overflow: 'auto',
+    padding: '20px',
+    margin: '20px 15px',
   },
   modalHeader: {
     display: 'flex',
@@ -176,18 +185,18 @@ const styles = {
     color: '#666',
   },
   formGroup: {
-    marginBottom: '20px',
+    marginBottom: '15px',
   },
   label: {
     display: 'block',
     fontSize: '14px',
     fontWeight: 'bold',
     color: '#444',
-    marginBottom: '8px',
+    marginBottom: '6px',
   },
   input: {
     width: '100%',
-    padding: '12px 15px',
+    padding: '10px 12px',
     border: '1px solid #ddd',
     borderRadius: '8px',
     fontSize: '14px',
@@ -195,7 +204,7 @@ const styles = {
   },
   select: {
     width: '100%',
-    padding: '12px 15px',
+    padding: '10px 12px',
     border: '1px solid #ddd',
     borderRadius: '8px',
     fontSize: '14px',
@@ -204,18 +213,19 @@ const styles = {
   buttonGroup: {
     display: 'flex',
     justifyContent: 'flex-end',
-    gap: '10px',
-    marginTop: '25px',
+    gap: '15px',
+    marginTop: '30px',
   },
   cancelButton: {
     padding: '12px 20px',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: 'transparent',
+    color: '#666',
     border: '1px solid #ddd',
     borderRadius: '8px',
     fontSize: '14px',
     fontWeight: 'bold',
-    color: '#666',
     cursor: 'pointer',
+    transition: 'all 0.2s',
   },
   saveButton: {
     padding: '12px 20px',
@@ -226,27 +236,60 @@ const styles = {
     fontSize: '14px',
     fontWeight: 'bold',
     cursor: 'pointer',
+    transition: 'background-color 0.2s',
   },
-  inputPrefix: {
-    position: 'relative' as const,
+  // Responsive card view for mobile
+  mobileCard: {
+    display: 'none',
+    backgroundColor: 'white',
+    borderRadius: '8px',
+    padding: '15px',
+    marginBottom: '15px',
+    boxShadow: '0 2px 5px rgba(0, 0, 0, 0.05)',
+    border: '1px solid #eaeaea',
   },
-  currencySymbol: {
-    position: 'absolute' as const,
-    left: '15px',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    color: '#666',
-    fontSize: '14px',
+  mobileCardHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '10px',
   },
-  currencyInput: {
-    paddingLeft: '30px',
-  },
-  emptyMessage: {
-    padding: '40px 0',
-    textAlign: 'center' as const,
-    color: '#666',
+  mobileCardTitle: {
+    fontWeight: 'bold',
     fontSize: '16px',
-  }
+    color: '#333',
+  },
+  mobileCardItem: {
+    marginBottom: '10px',
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
+  mobileCardLabel: {
+    color: '#666',
+    fontSize: '13px',
+  },
+  mobileCardValue: {
+    fontSize: '14px',
+    fontWeight: '500',
+  },
+  mobileCardActions: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    gap: '10px',
+    marginTop: '15px',
+    borderTop: '1px solid #eee',
+    paddingTop: '10px',
+  },
+  responsiveHidden: {
+    '@media (max-width: 768px)': {
+      display: 'none',
+    },
+  },
+  responsiveVisible: {
+    '@media (max-width: 768px)': {
+      display: 'block',
+    },
+  },
 };
 
 export function AccountManagement({ user }: AccountManagementProps) {
@@ -259,7 +302,8 @@ export function AccountManagement({ user }: AccountManagementProps) {
   const [transactionData, setTransactionData] = useState({
     amount: '',
     type: 'deposit',
-    description: ''
+    description: '',
+    status: 'approved'
   })
   const [formData, setFormData] = useState({
     name: '',
@@ -267,6 +311,23 @@ export function AccountManagement({ user }: AccountManagementProps) {
     password: '',
     role: 'user',
   })
+  const [isMobile, setIsMobile] = useState(false)
+
+  // Check for mobile viewport on mount and window resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    
+    // Initial check
+    checkMobile()
+    
+    // Add event listener for window resize
+    window.addEventListener('resize', checkMobile)
+    
+    // Clean up
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   // Use individual selectors instead of object with shallow comparison
   const users = useBankStore(state => state.users)
@@ -418,15 +479,30 @@ export function AccountManagement({ user }: AccountManagementProps) {
           amount,
           receiverAccount: selectedAccount.accountNumber,
           description: transactionData.description || 'Admin deposit',
-          status: 'approved',
+          status: transactionData.status,
           verificationDetails: {
             adminId: user.id,
             verifiedAt: new Date().toISOString(),
-            notes: 'Approved by admin'
+            notes: `Admin deposit - ${transactionData.status}`
           }
         });
       } else if (transactionData.type === 'withdrawal') {
         if (selectedAccount.balance < amount) {
+          // Create a failed transaction record for insufficient funds
+          await addTransaction({
+            date: new Date().toISOString(),
+            type: 'admin-decrease',
+            amount,
+            senderAccount: selectedAccount.accountNumber,
+            description: transactionData.description || 'Failed admin withdrawal',
+            status: 'failed',
+            verificationDetails: {
+              adminId: user.id,
+              verifiedAt: new Date().toISOString(),
+              notes: 'Failed due to insufficient funds'
+            }
+          });
+          
           alert('Insufficient funds');
           return;
         }
@@ -437,11 +513,11 @@ export function AccountManagement({ user }: AccountManagementProps) {
           amount,
           senderAccount: selectedAccount.accountNumber,
           description: transactionData.description || 'Admin withdrawal',
-          status: 'approved',
+          status: transactionData.status,
           verificationDetails: {
             adminId: user.id,
             verifiedAt: new Date().toISOString(),
-            notes: 'Approved by admin'
+            notes: `Admin withdrawal - ${transactionData.status}`
           }
         });
       }
@@ -450,19 +526,41 @@ export function AccountManagement({ user }: AccountManagementProps) {
       setTransactionData({
         amount: '',
         type: 'deposit',
-        description: ''
+        description: '',
+        status: 'approved'
       });
       setSelectedAccount(null);
       setShowTransactionModal(false);
       
     } catch (error) {
       console.error('Error creating transaction:', error);
+      
+      // Create an error transaction to log the issue
+      try {
+        await addTransaction({
+          date: new Date().toISOString(),
+          type: transactionData.type === 'deposit' ? 'admin-increase' : 'admin-decrease',
+          amount,
+          senderAccount: transactionData.type === 'withdrawal' ? selectedAccount.accountNumber : '',
+          receiverAccount: transactionData.type === 'deposit' ? selectedAccount.accountNumber : '',
+          description: transactionData.description || 'Error in admin transaction',
+          status: transactionData.status === 'approved' ? 'error' : transactionData.status,
+          verificationDetails: {
+            adminId: user.id,
+            verifiedAt: new Date().toISOString(),
+            notes: `System error during transaction processing - ${transactionData.status}`
+          }
+        });
+      } catch (innerError) {
+        console.error('Error creating error transaction:', innerError);
+      }
+      
       alert('Failed to create transaction');
     }
   }, [selectedAccount, transactionData, addTransaction, user]);
 
   // Handle updating account balance directly
-  const handleUpdateBalance = useCallback(async (account: any, newBalanceStr: string) => {
+  const handleUpdateBalance = useCallback(async (account: any, newBalanceStr: string, status = 'approved') => {
     const newBalance = parseFloat(newBalanceStr);
     if (isNaN(newBalance)) {
       alert('Please enter a valid amount');
@@ -482,13 +580,13 @@ export function AccountManagement({ user }: AccountManagementProps) {
           type: difference > 0 ? 'admin-increase' : 'admin-decrease',
           amount: Math.abs(difference),
           description: `Admin balance adjustment`,
-          status: 'approved',
+          status: status,
           receiverAccount: difference > 0 ? account.accountNumber : undefined,
           senderAccount: difference < 0 ? account.accountNumber : undefined,
           verificationDetails: {
             adminId: user.id,
             verifiedAt: new Date().toISOString(),
-            notes: 'Manual balance adjustment by admin'
+            notes: `Manual balance adjustment by admin - ${status}`
           }
         });
       }
@@ -498,56 +596,33 @@ export function AccountManagement({ user }: AccountManagementProps) {
     }
   }, [updateAccountBalance, addTransaction, user]);
 
-  if (user?.role !== "admin") {
-    return <div>Access denied. Admin privileges required.</div>
-  }
-
-  return (
-    <div style={styles.container}>
-      {/* Tab Navigation */}
-      <div style={styles.tabNav}>
-          {[
-            { id: "users", label: "User Management", count: userCount },
-            {
-              id: "accounts",
-              label: "Account Management",
-              count: accountCount,
-            },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                ...styles.tabButton,
-                ...(activeTab === tab.id ? styles.activeTabButton : {})
-              }}
-            >
-              <span>{tab.label}</span>
-              <span style={styles.tabCount}>{tab.count}</span>
-            </button>
-          ))}
-      </div>
-
-      {/* User Management */}
-      {activeTab === "users" && (
-        <div style={styles.adminCard}>
-          <div style={styles.adminHeader}>
-            <h2 style={styles.adminTitle}>
-              <Users size={20} />
-              <span>User Management</span>
-            </h2>
-            <button
-              onClick={() => setShowAddModal(true)}
-              style={styles.addButton}
-            >
-              <Plus size={16} />
-              <span>Add User</span>
-            </button>
+  const renderUsersTable = () => {
+    return (
+      <div style={styles.container}>
+        <div style={styles.adminHeader}>
+          <div style={styles.adminTitle}>
+            <Users size={18} /> User Management
           </div>
+          <button 
+            style={styles.addButton} 
+            onClick={() => {
+              setFormData({
+                name: '',
+                email: '',
+                password: '',
+                role: 'user',
+              })
+              setShowAddModal(true)
+            }}
+          >
+            <Plus size={16} /> Add User
+          </button>
+        </div>
 
-          {/* Users Table */}
+        {/* Responsive Table with horizontal scroll on mobile */}
+        <div style={styles.tableContainer}>
           <table style={styles.table}>
-              <thead>
+            <thead>
               <tr>
                 <th style={styles.tableHeader}>Name</th>
                 <th style={styles.tableHeader}>Email</th>
@@ -555,118 +630,225 @@ export function AccountManagement({ user }: AccountManagementProps) {
                 <th style={styles.tableHeader}>Account</th>
                 <th style={styles.tableHeader}>Balance</th>
                 <th style={styles.tableHeader}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredUsers.map((userItem: any) => {
-                  const userAccount = getUserAccount(userItem.id)
-                  const isEditing = editingUser?.id === userItem.id
-
-                  return (
-                    <tr key={userItem.id}>
-                      <td style={styles.tableCell}>
-                          {isEditing ? (
-                            <input
-                              type="text"
-                              value={editingUser.name}
-                              onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
-                            style={styles.input}
-                            />
-                          ) : (
-                          <span style={{ fontWeight: 'bold' }}>{userItem.name}</span>
-                          )}
-                        </td>
-                      <td style={styles.tableCell}>
-                          {isEditing ? (
-                            <input
-                              type="email"
-                              value={editingUser.email}
-                              onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
-                            style={styles.input}
-                            />
-                          ) : (
-                          <span>{userItem.email}</span>
-                          )}
-                        </td>
-                      <td style={styles.tableCell}>
-                        <span style={{ 
+              </tr>
+            </thead>
+            <tbody>
+              {filteredUsers.map((userData: any) => {
+                const userAccount = getUserAccount(userData.id)
+                return (
+                  <tr key={userData.id}>
+                    <td style={styles.tableCell}>{userData.name}</td>
+                    <td style={styles.tableCell}>{userData.email}</td>
+                    <td style={styles.tableCell}>
+                      <span 
+                        style={{
                           ...styles.userRole,
-                          ...(userItem.role === "admin" ? styles.adminRole : styles.userRoleRegular)
-                        }}>
-                          {userItem.role === "admin" ? "Admin" : "User"}
-                          </span>
-                        </td>
-                      <td style={styles.tableCell}>{userAccount?.accountNumber || "N/A"}</td>
-                      <td style={styles.tableCell}>
-                        {userAccount ? formatCurrency(userAccount.balance) : "$0.00"}
-                        </td>
-                      <td style={styles.tableCell}>
-                        <div style={{ display: 'flex', gap: '5px' }}>
-                            {isEditing ? (
-                              <>
-                                <button
-                                  onClick={handleSaveUser}
-                                style={{ ...styles.actionButton, ...styles.editButton }}
-                                  title="Save"
-                                >
-                                <Save size={18} />
-                                </button>
-                                <button
-                                  onClick={() => setEditingUser(null)}
-                                style={styles.actionButton}
-                                  title="Cancel"
-                                >
-                                <X size={18} />
-                                </button>
-                              </>
-                            ) : (
-                              <>
-                                <button
-                                  onClick={() => handleEditUser(userItem)}
-                                style={{ ...styles.actionButton, ...styles.editButton }}
-                                  title="Edit"
-                                >
-                                <Edit size={18} />
-                                </button>
-                                {userItem.id !== user.id && (
-                                  <button
-                                    onClick={() => handleDeleteUser(userItem.id)}
-                                  style={{ ...styles.actionButton, ...styles.deleteButton }}
-                                    title="Delete"
-                                  >
-                                  <Trash2 size={18} />
-                                  </button>
-                                )}
-                              </>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+                          ...(userData.role === 'admin' ? styles.adminRole : styles.userRoleRegular)
+                        }}
+                      >
+                        {userData.role}
+                      </span>
+                    </td>
+                    <td style={styles.tableCell}>
+                      {userAccount ? userAccount.accountNumber : "No account"}
+                    </td>
+                    <td style={styles.tableCell}>
+                      {userAccount 
+                        ? new Intl.NumberFormat('en-US', {
+                            style: 'currency',
+                            currency: 'USD',
+                          }).format(userAccount.balance)
+                        : "N/A"
+                      }
+                    </td>
+                    <td style={styles.tableCell}>
+                      <div style={{ display: 'flex', gap: '5px' }}>
+                        <button 
+                          style={{ ...styles.actionButton, ...styles.editButton }}
+                          onClick={() => handleEditUser(userData)}
+                          title="Edit User"
+                        >
+                          <Edit size={16} />
+                        </button>
+                        {userAccount && (
+                          <button 
+                            style={{ ...styles.actionButton, color: '#4caf50' }}
+                            onClick={() => {
+                              setSelectedAccount(userAccount)
+                              setTransactionData({
+                                amount: '',
+                                type: 'deposit',
+                                description: '',
+                                status: 'approved'
+                              })
+                              setShowTransactionModal(true)
+                            }}
+                            title="Adjust Balance"
+                          >
+                            <DollarSign size={16} />
+                          </button>
+                        )}
+                        {userData.id !== user.id && (
+                          <button 
+                            style={{ ...styles.actionButton, ...styles.deleteButton }}
+                            onClick={() => handleDeleteUser(userData.id)}
+                            title="Delete User"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
         </div>
-      )}
+
+        {/* Mobile Card View (shown at small screens) */}
+        {isMobile && (
+          <div style={{ marginTop: '20px' }}>
+            {filteredUsers.map((userData: any) => {
+              const userAccount = getUserAccount(userData.id)
+              return (
+                <div key={userData.id} style={{ 
+                  ...styles.mobileCard, 
+                  display: 'block' 
+                }}>
+                  <div style={styles.mobileCardHeader}>
+                    <div style={styles.mobileCardTitle}>{userData.name}</div>
+                    <span 
+                      style={{
+                        ...styles.userRole,
+                        ...(userData.role === 'admin' ? styles.adminRole : styles.userRoleRegular)
+                      }}
+                    >
+                      {userData.role}
+                    </span>
+                  </div>
+                  
+                  <div style={styles.mobileCardItem}>
+                    <div style={styles.mobileCardLabel}>Email:</div>
+                    <div style={styles.mobileCardValue}>{userData.email}</div>
+                  </div>
+                  
+                  <div style={styles.mobileCardItem}>
+                    <div style={styles.mobileCardLabel}>Account:</div>
+                    <div style={styles.mobileCardValue}>
+                      {userAccount ? userAccount.accountNumber : "No account"}
+                    </div>
+                  </div>
+                  
+                  <div style={styles.mobileCardItem}>
+                    <div style={styles.mobileCardLabel}>Balance:</div>
+                    <div style={styles.mobileCardValue}>
+                      {userAccount 
+                        ? new Intl.NumberFormat('en-US', {
+                            style: 'currency',
+                            currency: 'USD',
+                          }).format(userAccount.balance)
+                        : "N/A"
+                      }
+                    </div>
+                  </div>
+                  
+                  <div style={styles.mobileCardActions}>
+                    <button 
+                      style={{ ...styles.actionButton, ...styles.editButton }}
+                      onClick={() => handleEditUser(userData)}
+                      title="Edit User"
+                    >
+                      <Edit size={16} />
+                    </button>
+                    {userAccount && (
+                      <button 
+                        style={{ ...styles.actionButton, color: '#4caf50' }}
+                        onClick={() => {
+                          setSelectedAccount(userAccount)
+                          setTransactionData({
+                            amount: '',
+                            type: 'deposit',
+                            description: '',
+                            status: 'approved'
+                          })
+                          setShowTransactionModal(true)
+                        }}
+                        title="Adjust Balance"
+                      >
+                        <DollarSign size={16} />
+                      </button>
+                    )}
+                    {userData.id !== user.id && (
+                      <button 
+                        style={{ ...styles.actionButton, ...styles.deleteButton }}
+                        onClick={() => handleDeleteUser(userData.id)}
+                        title="Delete User"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  if (user?.role !== "admin") {
+    return <div>Access denied. Admin privileges required.</div>
+  }
+
+  return (
+    <div style={styles.container}>
+      <div style={styles.tabNav}>
+        <button 
+          style={{ 
+            ...styles.tabButton, 
+            ...(activeTab === "users" ? styles.activeTabButton : {}) 
+          }}
+          onClick={() => setActiveTab("users")}
+        >
+          <Users size={16} /> Users
+          <span style={styles.tabCount}>{userCount}</span>
+        </button>
+        <button 
+          style={{ 
+            ...styles.tabButton, 
+            ...(activeTab === "accounts" ? styles.activeTabButton : {}) 
+          }}
+          onClick={() => setActiveTab("accounts")}
+        >
+          <CreditCard size={16} /> Accounts
+          <span style={styles.tabCount}>{accountCount}</span>
+        </button>
+      </div>
+
+      {activeTab === "users" && renderUsersTable()}
 
       {/* Account Management */}
       {activeTab === "accounts" && (
-        <div style={styles.adminCard}>
+        <div style={styles.container}>
           <div style={styles.adminHeader}>
             <h2 style={styles.adminTitle}>
               <Users size={20} />
-            <span>Account Management</span>
-          </h2>
+              <span>Account Management</span>
+            </h2>
           </div>
 
-          <table style={styles.table}>
+          {/* Responsive Table with horizontal scroll on mobile */}
+          <div style={styles.tableContainer}>
+            <table style={styles.table}>
               <thead>
-              <tr>
-                <th style={styles.tableHeader}>Account Number</th>
-                <th style={styles.tableHeader}>Account Holder</th>
-                <th style={styles.tableHeader}>Balance</th>
-                <th style={styles.tableHeader}>Status</th>
-                <th style={styles.tableHeader}>Actions</th>
+                <tr>
+                  <th style={styles.tableHeader}>Account Number</th>
+                  <th style={styles.tableHeader}>Account Holder</th>
+                  <th style={styles.tableHeader}>Balance</th>
+                  <th style={styles.tableHeader}>Status</th>
+                  <th style={styles.tableHeader}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -686,9 +868,9 @@ export function AccountManagement({ user }: AccountManagementProps) {
                           fontSize: '12px',
                           fontWeight: 'bold',
                         }}>
-                            Active
-                          </span>
-                        </td>
+                          Active
+                        </span>
+                      </td>
                       <td style={styles.tableCell}>
                         <div style={{ display: 'flex', gap: '5px' }}>
                           <button
@@ -709,7 +891,8 @@ export function AccountManagement({ user }: AccountManagementProps) {
                               setTransactionData({
                                 amount: '',
                                 type: 'deposit',
-                                description: ''
+                                description: '',
+                                status: 'approved'
                               });
                               setShowTransactionModal(true);
                             }}
@@ -725,13 +908,88 @@ export function AccountManagement({ user }: AccountManagementProps) {
                 })}
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile Card View (shown at small screens) */}
+          {isMobile && (
+            <div style={{ marginTop: '20px' }}>
+              {filteredAccounts.map((account: any) => {
+                const accountUser = getAccountUser(account.userId)
+                return (
+                  <div key={account.id} style={{ 
+                    ...styles.mobileCard, 
+                    display: 'block' 
+                  }}>
+                    <div style={styles.mobileCardHeader}>
+                      <div style={styles.mobileCardTitle}>Account {account.accountNumber}</div>
+                      <span style={{
+                        backgroundColor: '#e8f5e9',
+                        color: '#2e7d32',
+                        padding: '4px 10px',
+                        borderRadius: '20px',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                      }}>
+                        Active
+                      </span>
+                    </div>
+                    
+                    <div style={styles.mobileCardItem}>
+                      <div style={styles.mobileCardLabel}>Account Holder:</div>
+                      <div style={styles.mobileCardValue}>{accountUser?.name || "Unknown"}</div>
+                    </div>
+                    
+                    <div style={styles.mobileCardItem}>
+                      <div style={styles.mobileCardLabel}>Balance:</div>
+                      <div style={styles.mobileCardValue}>{formatCurrency(account.balance)}</div>
+                    </div>
+                    
+                    <div style={styles.mobileCardActions}>
+                      <button
+                        onClick={() => {
+                          const newBalance = prompt("Enter new balance:", account.balance.toString())
+                          if (newBalance && !isNaN(Number.parseFloat(newBalance))) {
+                            handleUpdateBalance(account, newBalance);
+                          }
+                        }}
+                        style={{ ...styles.actionButton, ...styles.editButton }}
+                        title="Update Balance"
+                      >
+                        <Edit size={16} />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSelectedAccount(account);
+                          setTransactionData({
+                            amount: '',
+                            type: 'deposit',
+                            description: '',
+                            status: 'approved'
+                          });
+                          setShowTransactionModal(true);
+                        }}
+                        style={{ ...styles.actionButton, backgroundColor: '#e3f2fd', color: '#0057b7', padding: '8px', borderRadius: '4px' }}
+                        title="Add Transaction"
+                      >
+                        <DollarSign size={16} />
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
       )}
 
       {/* Add User Modal */}
       {showAddModal && (
         <div style={styles.modal}>
-          <div style={styles.modalContent}>
+          <div style={{
+            ...styles.modalContent,
+            maxHeight: '90vh',
+            overflowY: 'auto'
+          }}>
             <div style={styles.modalHeader}>
               <h3 style={styles.modalTitle}>Add New User</h3>
               <button onClick={() => setShowAddModal(false)} style={styles.closeButton}>
@@ -804,10 +1062,95 @@ export function AccountManagement({ user }: AccountManagementProps) {
         </div>
       )}
 
+      {/* Edit User Modal */}
+      {showEditModal && editingUser && (
+        <div style={styles.modal}>
+          <div style={{
+            ...styles.modalContent,
+            maxHeight: '90vh',
+            overflowY: 'auto'
+          }}>
+            <div style={styles.modalHeader}>
+              <h3 style={styles.modalTitle}>Edit User</h3>
+              <button onClick={() => setShowEditModal(false)} style={styles.closeButton}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <div>
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Full Name</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  style={styles.input}
+                  placeholder="e.g. John Smith"
+                />
+              </div>
+
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Email</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  style={styles.input}
+                  placeholder="e.g. john@example.com"
+                />
+              </div>
+
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Password</label>
+                <input
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  style={styles.input}
+                  placeholder="Minimum 8 characters"
+                />
+              </div>
+
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Role</label>
+                <select
+                  value={formData.role}
+                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                  style={styles.select}
+                >
+                  <option value="user">User</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+
+              <div style={styles.buttonGroup}>
+                <button
+                  onClick={() => setShowEditModal(false)}
+                  style={styles.cancelButton}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveUser}
+                  style={styles.saveButton}
+                >
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Transaction Modal */}
       {showTransactionModal && selectedAccount && (
         <div style={styles.modal}>
-          <div style={styles.modalContent}>
+          <div style={{
+            ...styles.modalContent,
+            maxHeight: '80vh',
+            overflowY: 'auto',
+            padding: '15px'
+          }}>
             <div style={styles.modalHeader}>
               <h3 style={styles.modalTitle}>Create Transaction</h3>
               <button onClick={() => setShowTransactionModal(false)} style={styles.closeButton}>
@@ -873,6 +1216,24 @@ export function AccountManagement({ user }: AccountManagementProps) {
                   style={styles.input}
                   placeholder={transactionData.type === 'deposit' ? "Admin deposit" : "Admin withdrawal"}
                 />
+              </div>
+
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Status</label>
+                <select
+                  value={transactionData.status}
+                  onChange={(e) => setTransactionData({...transactionData, status: e.target.value})}
+                  style={styles.select}
+                >
+                  <option value="approved">Approved</option>
+                  <option value="pending">Pending</option>
+                  <option value="rejected">Rejected</option>
+                  <option value="failed">Failed</option>
+                  <option value="error">Error</option>
+                </select>
+                <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+                  Select the status for this transaction.
+                </div>
               </div>
 
               <div style={styles.formGroup}>

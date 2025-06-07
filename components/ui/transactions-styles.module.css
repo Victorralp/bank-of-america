@@ -1,0 +1,270 @@
+/* Responsive styles for transaction components */
+
+/* Transaction table container with horizontal scroll on mobile */
+.tableContainer {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 20px;
+}
+
+.table {
+  width: 100%;
+  min-width: 650px; /* Ensures table doesn't compress too much */
+  border-collapse: collapse;
+}
+
+.tableHeader {
+  background-color: #f5f7fa;
+  color: #666;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.tableCell {
+  padding: 15px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Transaction status badges */
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.badgePending {
+  background-color: #fff8e1;
+  color: #ffa000;
+}
+
+.badgeApproved {
+  background-color: #e8f5e9;
+  color: #43a047;
+}
+
+.badgeRejected {
+  background-color: #ffebee;
+  color: #e53935;
+}
+
+.badgeCompleted {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.badgeFailed {
+  background-color: #ffcdd2;
+  color: #d32f2f;
+}
+
+.badgeError {
+  background-color: #ffe0b2;
+  color: #e64a19;
+}
+
+/* Transaction cards for mobile view */
+.mobileCards {
+  display: none;
+}
+
+.mobileCard {
+  background-color: white;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  border: 1px solid #eaeaea;
+}
+
+.mobileCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.mobileCardTitle {
+  font-weight: bold;
+  font-size: 16px;
+  color: #333;
+}
+
+.mobileCardDate {
+  font-size: 13px;
+  color: #666;
+}
+
+.mobileCardItem {
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.mobileCardLabel {
+  color: #666;
+  font-size: 13px;
+}
+
+.mobileCardValue {
+  font-size: 14px;
+  font-weight: 500;
+  text-align: right;
+}
+
+.mobileCardActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+}
+
+/* Filter components */
+.filters {
+  background-color: white;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  border: 1px solid #eaeaea;
+}
+
+.filterRow {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.filterItem {
+  flex: 1;
+}
+
+.filterLabel {
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+  color: #444;
+  margin-bottom: 8px;
+}
+
+.filterInput, .filterSelect {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: white;
+}
+
+.buttonRow {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.primaryButton {
+  background-color: #0057b7;
+  color: white;
+  border: none;
+}
+
+.secondaryButton {
+  background-color: transparent;
+  color: #666;
+  border: 1px solid #ddd;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pageInfo {
+  color: #666;
+  font-size: 14px;
+}
+
+.pageButtons {
+  display: flex;
+  gap: 5px;
+}
+
+.pageButton {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  background-color: white;
+  border: 1px solid #eaeaea;
+  transition: all 0.2s;
+}
+
+.activePageButton {
+  background-color: #0057b7;
+  color: white;
+  border-color: #0057b7;
+}
+
+/* Responsive styles for tablet and up */
+@media (min-width: 768px) {
+  .filterRow {
+    flex-direction: row;
+  }
+  
+  .filters {
+    padding: 20px;
+  }
+}
+
+/* Media query for mobile devices */
+@media (max-width: 767px) {
+  .desktopTable {
+    display: none;
+  }
+  
+  .mobileCards {
+    display: block;
+  }
+  
+  .pagination {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .pageInfo {
+    margin-bottom: 10px;
+  }
+} 

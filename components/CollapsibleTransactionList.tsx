@@ -154,6 +154,10 @@ export function CollapsibleTransactionList({ transactions }: CollapsibleTransact
         return styles.approved
       case 'rejected':
         return styles.rejected
+      case 'failed':
+        return styles.failed
+      case 'error':
+        return styles.error
       default:
         return {}
     }

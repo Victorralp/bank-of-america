@@ -3,6 +3,7 @@
 import React, { FormEvent, useState } from 'react'
 import Link from 'next/link'
 import { findUserByCredentials } from '@/lib/mockData'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 const styles = {
   body: {
@@ -205,11 +206,54 @@ const styles = {
   }
 }
 
+// Mobile-specific styles
+const mobileStyles = {
+  body: {
+    padding: '10px'
+  },
+  container: {
+    flexDirection: 'column' as const,
+    maxWidth: '100%'
+  },
+  leftPanel: {
+    padding: '30px 20px'
+  },
+  rightPanel: {
+    padding: '30px 20px'
+  },
+  header: {
+    fontSize: '20px',
+    marginBottom: '20px'
+  },
+  loginHeader: {
+    fontSize: '20px'
+  },
+  alert: {
+    padding: '10px',
+    fontSize: '12px'
+  },
+  demoAccounts: {
+    padding: '10px 15px',
+    fontSize: '12px'
+  },
+  demoCredential: {
+    flexDirection: 'column' as const,
+    padding: '8px 0'
+  },
+  securityTitle: {
+    fontSize: '16px'
+  },
+  securityList: {
+    fontSize: '13px'
+  }
+}
+
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const isMobile = useIsMobile()
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
@@ -255,20 +299,35 @@ export default function LoginPage() {
     }
   }
 
+  // Apply the appropriate styles based on device type
+  const currentStyles = isMobile ? {
+    body: { ...styles.body, ...mobileStyles.body },
+    container: { ...styles.container, ...mobileStyles.container },
+    leftPanel: { ...styles.leftPanel, ...mobileStyles.leftPanel },
+    rightPanel: { ...styles.rightPanel, ...mobileStyles.rightPanel },
+    header: { ...styles.header, ...mobileStyles.header },
+    loginHeader: { ...styles.loginHeader, ...mobileStyles.loginHeader },
+    alert: { ...styles.alert, ...mobileStyles.alert },
+    demoAccounts: { ...styles.demoAccounts, ...mobileStyles.demoAccounts },
+    demoCredential: { ...styles.demoCredential, ...mobileStyles.demoCredential },
+    securityTitle: { ...styles.securityTitle, ...mobileStyles.securityTitle },
+    securityList: { ...styles.securityList, ...mobileStyles.securityList }
+  } : styles;
+
   return (
-    <div style={styles.body}>
-      <div style={styles.container}>
-        <div style={styles.leftPanel}>
-          <div style={styles.header}>
+    <div style={currentStyles.body}>
+      <div style={currentStyles.container}>
+        <div style={currentStyles.leftPanel}>
+          <div style={currentStyles.header}>
             <div style={styles.logoIcon}>B</div> Dummy Bank
           </div>
           
-          <div style={styles.alert}>
+          <div style={currentStyles.alert}>
             <span>⚠️</span>
             <span>Always verify you're on secure-bank.com before entering credentials</span>
         </div>
         
-          <h1 style={styles.loginHeader}>Welcome Back</h1>
+          <h1 style={currentStyles.loginHeader}>Welcome Back</h1>
           <p style={styles.subtext}>Login to access your account</p>
 
           {errorMessage && (
@@ -317,14 +376,14 @@ export default function LoginPage() {
             <button type="submit" style={styles.button as React.CSSProperties}>Login</button>
             </form>
 
-          <div style={styles.demoAccounts}>
+          <div style={currentStyles.demoAccounts}>
             <div style={styles.demoTitle}>Demo Accounts:</div>
-            <div style={styles.demoCredential}>
+            <div style={currentStyles.demoCredential}>
               <span>Admin:</span>
               <span>admin@example.com / admin123</span>
               <button onClick={() => fillDemoCredentials('admin')} style={{ background: 'none', border: 'none', color: '#0057b7', cursor: 'pointer', textDecoration: 'underline' }}>Fill</button>
             </div>
-            <div style={styles.demoCredential}>
+            <div style={currentStyles.demoCredential}>
               <span>User:</span>
               <span>user@example.com / user123</span>
               <button onClick={() => fillDemoCredentials('user')} style={{ background: 'none', border: 'none', color: '#0057b7', cursor: 'pointer', textDecoration: 'underline' }}>Fill</button>
@@ -338,10 +397,10 @@ export default function LoginPage() {
           </div>
         </div>
         
-        <div style={styles.rightPanel}>
-          <h2 style={styles.securityTitle}>Bank-Grade Security</h2>
+        <div style={currentStyles.rightPanel}>
+          <h2 style={currentStyles.securityTitle}>Bank-Grade Security</h2>
           <p>Your peace of mind is our priority. We employ robust security measures to protect your financial information.</p>
-          <ul style={styles.securityList}>
+          <ul style={currentStyles.securityList}>
             <li style={styles.securityItem}>Two-Factor Authentication (2FA)</li>
             <li style={styles.securityItem}>Encryption of Sensitive Data</li>
             <li style={styles.securityItem}>Regular Security Audits</li>

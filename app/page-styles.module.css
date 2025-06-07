@@ -1,0 +1,344 @@
+/* Common responsive styles for content pages */
+.pageContainer {
+  width: 100%;
+}
+
+.contentCard {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.sectionTitle {
+  font-size: 18px;
+  font-weight: bold;
+  color: #00377a;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* Grid layouts for different sections */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 15px;
+}
+
+.gridHalf {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 15px;
+}
+
+.gridThirds {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 15px;
+}
+
+/* Account Card Styles */
+.accountCard {
+  background-color: white;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid #eaeaea;
+  transition: transform 0.2s;
+}
+
+.accountHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.accountType {
+  background-color: #e3f2fd;
+  color: #0057b7;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 4px 10px;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.accountNumber {
+  font-size: 15px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.accountDetails {
+  color: #666;
+  font-size: 13px;
+  margin-bottom: 15px;
+}
+
+.balanceSection {
+  border-top: 1px solid #f0f0f0;
+  padding-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.balanceLabel {
+  color: #666;
+  font-size: 13px;
+}
+
+.balanceAmount {
+  font-size: 20px;
+  font-weight: bold;
+  color: #00377a;
+  margin-top: 5px;
+}
+
+.availableLabel {
+  color: #4caf50;
+  font-size: 12px;
+}
+
+/* Quick Action Buttons */
+.quickActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.actionButton {
+  flex: 1 0 calc(50% - 10px);
+  padding: 15px;
+  background-color: #f5f7fa;
+  border: 1px solid #eaeaea;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.actionButton:hover {
+  background-color: #e3f2fd;
+  border-color: #bbdefb;
+}
+
+.actionIcon {
+  width: 30px;
+  height: 30px;
+  background-color: #0057b7;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 15px;
+}
+
+.actionLabel {
+  font-weight: bold;
+  color: #333;
+  font-size: 14px;
+}
+
+/* Card styles */
+.card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid #eaeaea;
+}
+
+/* Table styles with horizontal scroll on mobile */
+.tableContainer {
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+
+.table {
+  width: 100%;
+  min-width: 600px; /* Ensures table doesn't compress too much */
+  border-collapse: collapse;
+}
+
+.tableHeader {
+  background-color: #f5f7fa;
+  color: #666;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.tableCell {
+  padding: 12px 15px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Form styles */
+.formGroup {
+  margin-bottom: 15px;
+}
+
+.formLabel {
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+  color: #444;
+  margin-bottom: 8px;
+}
+
+.formInput {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.formSelect {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: white;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background-color: #0057b7;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.buttonSecondary {
+  background-color: #f5f7fa;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+/* Mobile Card View - an alternative to tables on small screens */
+.mobileCard {
+  display: block;
+  background-color: white;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  border: 1px solid #eaeaea;
+}
+
+.mobileCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.mobileCardTitle {
+  font-weight: bold;
+  font-size: 16px;
+  color: #333;
+}
+
+.mobileCardItem {
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.mobileCardLabel {
+  color: #666;
+  font-size: 13px;
+}
+
+.mobileCardValue {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.mobileCardActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+}
+
+/* Responsive styles for tablet and up */
+@media (min-width: 768px) {
+  .contentCard {
+    padding: 20px;
+    margin-bottom: 25px;
+  }
+
+  .sectionTitle {
+    font-size: 20px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+  }
+
+  .gridHalf {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .card {
+    padding: 20px;
+  }
+  
+  .balanceSection {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  
+  .accountCard {
+    padding: 20px;
+  }
+  
+  .balanceAmount {
+    font-size: 24px;
+  }
+  
+  .actionButton {
+    flex: 1;
+  }
+}
+
+/* Desktop styles */
+@media (min-width: 1024px) {
+  .contentCard {
+    padding: 25px;
+    margin-bottom: 30px;
+  }
+
+  .gridThirds {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  
+  .quickActions {
+    gap: 15px;
+  }
+} 

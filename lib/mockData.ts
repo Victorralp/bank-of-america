@@ -29,7 +29,7 @@ export interface Transaction {
   senderAccount: string;
   receiverAccount: string;
   description: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected' | 'failed' | 'error';
   verificationDetails?: {
     adminId: number;
     verifiedAt: string;

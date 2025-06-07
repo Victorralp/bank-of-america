@@ -84,6 +84,14 @@ const styles = {
     backgroundColor: '#ffebee',
     color: '#c62828',
   },
+  failedStatus: {
+    backgroundColor: '#ffebee',
+    color: '#c62828',
+  },
+  errorStatus: {
+    backgroundColor: '#ffebee',
+    color: '#c62828',
+  },
   details: {
     display: 'grid',
     gridTemplateColumns: 'repeat(2, 1fr)',
@@ -193,6 +201,10 @@ export function TransactionVerification({ transactions, onVerify }: TransactionV
         return styles.approvedStatus
       case 'rejected':
         return styles.rejectedStatus
+      case 'failed':
+        return styles.failedStatus
+      case 'error':
+        return styles.errorStatus
       default:
         return {}
     }

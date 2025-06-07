@@ -6,60 +6,11 @@ import { CollapsibleTransactionList } from '@/components/CollapsibleTransactionL
 import { Transaction } from '@/lib/mockData'
 import { useStore } from '@/lib/bankStore'
 import { shallow } from 'zustand/shallow'
-
-const styles = {
-  page: {
-    display: 'flex',
-    gap: '32px',
-    alignItems: 'flex-start',
-    padding: '32px 0',
-    maxWidth: '1400px',
-    margin: '0 auto',
-    flexWrap: 'wrap' as const,
-  },
-  filterCard: {
-    background: 'white',
-    borderRadius: '16px',
-    boxShadow: '0 4px 24px rgba(0,0,0,0.07)',
-    padding: '32px 24px',
-    minWidth: '300px',
-    maxWidth: '350px',
-    flex: '1 1 320px',
-    marginBottom: '24px',
-  },
-  tableCard: {
-    background: 'white',
-    borderRadius: '16px',
-    boxShadow: '0 4px 24px rgba(0,0,0,0.07)',
-    padding: '32px 24px',
-    flex: '3 1 600px',
-    minWidth: '340px',
-    overflowX: 'auto' as const,
-    marginBottom: '24px',
-  },
-  heading: {
-    fontSize: '2rem',
-    fontWeight: 700,
-    color: '#00377a',
-    marginBottom: '24px',
-    letterSpacing: '-1px',
-  },
-  '@media (maxWidth: 900px)': {
-    page: {
-      flexDirection: 'column' as const,
-      gap: '0',
-    },
-    filterCard: {
-      maxWidth: '100%',
-      marginBottom: '16px',
-    },
-    tableCard: {
-      maxWidth: '100%',
-    },
-  },
-}
+import { useIsMobile } from '@/hooks/use-mobile'
 
 export default function TransactionsPage() {
+  const isMobile = useIsMobile()
+  
   // Use store instead of static data
   const transactions = useStore(state => state.transactions, shallow)
   
@@ -156,13 +107,41 @@ export default function TransactionsPage() {
   }
 
   return (
-    <div>
-      <h1 style={styles.heading}>Transactions</h1>
-      <div style={styles.page as React.CSSProperties}>
-        <div style={styles.filterCard as React.CSSProperties}>
+    <div style={{
+      padding: isMobile ? '16px' : '32px',
+      maxWidth: '1400px',
+      margin: '0 auto',
+    }}>
+      <h1 style={{
+        fontSize: isMobile ? '1.5rem' : '2rem',
+        fontWeight: 700,
+        color: '#00377a',
+        marginBottom: isMobile ? '16px' : '24px',
+        letterSpacing: '-1px',
+      }}>Transactions</h1>
+      
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: isMobile ? '1fr' : 'minmax(300px, 350px) minmax(600px, 1fr)',
+        gap: isMobile ? '16px' : '32px',
+        width: '100%',
+      }}>
+        <div style={{
+          width: '100%',
+          boxSizing: 'border-box' as const,
+        }}>
           <TransactionFilters onFilterChange={handleFilterChange} onExport={handleExport} />
         </div>
-        <div style={styles.tableCard as React.CSSProperties}>
+        
+        <div style={{
+          background: 'white',
+          borderRadius: isMobile ? '12px' : '16px',
+          boxShadow: '0 4px 24px rgba(0,0,0,0.07)',
+          padding: isMobile ? '16px' : '24px',
+          width: '100%',
+          boxSizing: 'border-box' as const,
+          overflowX: 'auto' as const,
+        }}>
           <CollapsibleTransactionList transactions={filteredTransactions} />
         </div>
       </div>

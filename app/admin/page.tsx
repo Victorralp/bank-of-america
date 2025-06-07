@@ -8,36 +8,8 @@ import { SecurityPanel } from '@/components/SecurityPanel'
 import { TransactionVerification } from '@/components/TransactionVerification'
 import { AuditLogPanel } from '@/components/AuditLogPanel'
 import { Transaction } from '@/lib/mockData'
-
-const styles = {
-  container: {
-    padding: '20px',
-    maxWidth: '1200px',
-    margin: '0 auto',
-  },
-  header: {
-    marginBottom: '30px',
-  },
-  title: {
-    fontSize: '24px',
-    fontWeight: 'bold',
-    color: '#00377a',
-    marginBottom: '10px',
-  },
-  subtitle: {
-    color: '#666',
-    fontSize: '16px',
-  },
-  section: {
-    marginBottom: '40px',
-  },
-  sectionTitle: {
-    fontSize: '20px',
-    fontWeight: 'bold',
-    color: '#00377a',
-    marginBottom: '20px',
-  }
-}
+import Link from 'next/link'
+import styles from './styles.module.css'
 
 export default function AdminPage() {
   const router = useRouter()
@@ -91,42 +63,116 @@ export default function AdminPage() {
     setUsers(users.map((u: any) => u.id === updatedUser.id ? updatedUser : u))
   }, [users, setUsers])
 
-  if (!user) {
-    return <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>
+  const handleLogout = () => {
+    sessionStorage.removeItem('user')
+    router.push('/')
   }
 
+  if (!user) {
+    return <div className={styles.loading}>Loading...</div>
+  }
+
+  // Render content based on active tab
+  const renderTabContent = () => {
+    switch(activeTab) {
+      case 'accounts':
+        return (
+          <div className={styles.section}>
+            <h2 className={styles.sectionTitle}>User & Account Management</h2>
+            <AccountManagement user={user} />
+          </div>
+        );
+      case 'transactions':
+        return (
+          <div className={styles.section}>
+            <h2 className={styles.sectionTitle}>Transaction Verification</h2>
+            <TransactionVerification
+              transactions={transactions}
+              onVerify={handleVerifyTransaction}
+            />
+          </div>
+        );
+      case 'security':
+        return (
+          <div className={styles.section}>
+            <h2 className={styles.sectionTitle}>Security Settings</h2>
+            <SecurityPanel 
+              user={user}
+              onUserUpdate={setUser}
+            />
+          </div>
+        );
+      case 'audit':
+        return (
+          <div className={styles.section}>
+            <h2 className={styles.sectionTitle}>Audit Log</h2>
+            <AuditLogPanel />
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
-    <div style={styles.container}>
-      <header style={styles.header}>
-        <h1 style={styles.title}>Admin Dashboard</h1>
-        <p style={styles.subtitle}>Manage users, accounts, and monitor system activity</p>
+    <div className={styles.container}>
+      {/* Mobile-only top bar */}
+      <div className={styles.topBar}>
+        <div className={styles.topBarContent}>
+          <div>{new Date().toLocaleDateString()}</div>
+          <div>Customer Support: 1-800-SECURE-BANK</div>
+        </div>
+      </div>
+      
+      {/* Mobile-only header */}
+      <div className={styles.mainHeader}>
+        <Link href="/dashboard" className={styles.logo}>
+          <div className={styles.logoIcon}>B</div> Dummy Bank
+        </Link>
+        
+        <div className={styles.userInfo}>
+          <div className={styles.userName}>Admin User</div>
+          <div className={styles.userDetails}>Administrator • ID: {user.id}</div>
+          <a href="#" className={styles.logoutLink} onClick={handleLogout}>Logout</a>
+        </div>
+      </div>
+
+      {/* Desktop-only header */}
+      <header className={styles.header}>
+        <h1 className={styles.title}>Admin Dashboard</h1>
+        <p className={styles.subtitle}>Manage users, accounts, and monitor system activity</p>
       </header>
 
-      <section style={styles.section}>
-        <h2 style={styles.sectionTitle}>User & Account Management</h2>
-        <AccountManagement user={user} />
-      </section>
+      <div className={styles.tabContainer}>
+        <div 
+          className={`${styles.tab} ${activeTab === 'accounts' ? styles.activeTab : ''}`}
+          onClick={() => setActiveTab('accounts')}
+        >
+          Accounts
+        </div>
+        <div 
+          className={`${styles.tab} ${activeTab === 'transactions' ? styles.activeTab : ''}`}
+          onClick={() => setActiveTab('transactions')}
+        >
+          Transactions
+        </div>
+        <div 
+          className={`${styles.tab} ${activeTab === 'security' ? styles.activeTab : ''}`}
+          onClick={() => setActiveTab('security')}
+        >
+          Security
+        </div>
+        <div 
+          className={`${styles.tab} ${activeTab === 'audit' ? styles.activeTab : ''}`}
+          onClick={() => setActiveTab('audit')}
+        >
+          Audit
+        </div>
+      </div>
 
-      <section style={styles.section}>
-        <h2 style={styles.sectionTitle}>Transaction Verification</h2>
-        <TransactionVerification
-          transactions={transactions}
-          onVerify={handleVerifyTransaction}
-        />
-      </section>
-
-      <section style={styles.section}>
-        <h2 style={styles.sectionTitle}>Security Settings</h2>
-        <SecurityPanel 
-          user={user}
-          onUserUpdate={setUser}
-        />
-      </section>
-
-      <section style={styles.section}>
-        <h2 style={styles.sectionTitle}>Audit Log</h2>
-        <AuditLogPanel />
-      </section>
+      <div className={styles.contentArea}>
+        {renderTabContent()}
+      </div>
     </div>
   )
 }

@@ -25,7 +25,7 @@ export function TransactionFilters({ onFilterChange, onExport }: TransactionFilt
   // Check window size on client side only
   useEffect(() => {
     const checkIfMobile = () => {
-      setIsMobile(window.innerWidth <= 600)
+      setIsMobile(window.innerWidth <= 768)
     }
     
     // Set initial value
@@ -70,34 +70,35 @@ export function TransactionFilters({ onFilterChange, onExport }: TransactionFilt
     borderRadius: '16px 0 0 16px',
     background: 'linear-gradient(180deg, #0057b7 0%, #00377a 100%)',
   }
+  
   const card = {
     position: 'relative' as const,
     background: '#f8fafc',
     borderRadius: 16,
     boxShadow: '0 4px 32px 0 rgba(0,87,183,0.08)',
-    padding: 32,
-    minWidth: 260,
-    maxWidth: 370,
+    padding: isMobile ? '20px 16px' : '32px',
     width: '100%',
+    maxWidth: isMobile ? '100%' : 370,
     margin: '0 auto',
     zIndex: 1,
     overflow: 'hidden',
-    top: 0,
     position: 'sticky' as const,
     alignSelf: 'flex-start',
     top: 32,
     boxSizing: 'border-box' as const,
   }
+  
   const sectionTitle = {
     display: 'flex',
     alignItems: 'center',
     gap: 14,
-    marginBottom: 32,
+    marginBottom: 24,
     fontWeight: 800,
-    fontSize: 24,
+    fontSize: isMobile ? 20 : 24,
     color: '#00377a',
     letterSpacing: '-1px',
   }
+  
   const iconStyle = {
     color: '#0057b7',
     width: 32,
@@ -107,6 +108,7 @@ export function TransactionFilters({ onFilterChange, onExport }: TransactionFilt
     padding: 6,
     boxShadow: '0 2px 8px 0 rgba(0,87,183,0.08)',
   }
+  
   const label = {
     fontSize: 15,
     fontWeight: 700,
@@ -115,6 +117,7 @@ export function TransactionFilters({ onFilterChange, onExport }: TransactionFilt
     display: 'block',
     letterSpacing: '-0.5px',
   }
+  
   const input = {
     width: '100%',
     padding: '12px 14px 12px 40px',
@@ -128,6 +131,7 @@ export function TransactionFilters({ onFilterChange, onExport }: TransactionFilt
     transition: 'border 0.2s, box-shadow 0.2s',
     boxSizing: 'border-box' as const,
   }
+  
   const select = {
     width: '100%',
     padding: '12px 14px',
@@ -140,31 +144,35 @@ export function TransactionFilters({ onFilterChange, onExport }: TransactionFilt
     boxShadow: '0 1px 4px 0 rgba(0,87,183,0.04)',
     boxSizing: 'border-box' as const,
   }
+  
   const groupBg = {
     background: '#f1f5fa',
     borderRadius: 12,
     padding: '18px 16px',
     margin: '0 -8px',
     display: 'flex',
-    flexDirection: 'row' as const,
-    gap: 16,
+    flexDirection: isMobile ? 'column' as const : 'row' as const,
+    gap: isMobile ? 16 : 16,
     width: '100%',
     boxSizing: 'border-box' as const,
-    flexWrap: 'wrap' as const,
   }
+  
   const divider = {
     borderTop: '1.5px solid #e0e7ef',
-    margin: '32px 0',
+    margin: '24px 0',
   }
+  
   const buttonRow = {
     display: 'flex',
-    gap: 16,
-    justifyContent: 'flex-end',
+    flexDirection: isMobile ? 'column' as const : 'row' as const,
+    gap: 12,
+    justifyContent: isMobile ? 'stretch' : 'flex-end',
     marginTop: 8,
   }
+  
   const pillButton = {
-    padding: '10px 26px',
-    fontSize: 16,
+    padding: '12px 26px',
+    fontSize: 15,
     borderRadius: 999,
     fontWeight: 700,
     border: 'none',
@@ -172,29 +180,24 @@ export function TransactionFilters({ onFilterChange, onExport }: TransactionFilt
     boxShadow: '0 2px 8px 0 rgba(0,87,183,0.06)',
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 10,
     transition: 'background 0.2s, color 0.2s',
+    width: isMobile ? '100%' : 'auto',
   }
+  
   const clearBtn = {
     ...pillButton,
     background: '#e3eaf7',
     color: '#0057b7',
     border: '1.5px solid #b3c7e6',
   }
+  
   const exportBtn = {
     ...pillButton,
     background: 'linear-gradient(90deg, #0057b7 0%, #00377a 100%)',
     color: 'white',
     border: 'none',
-  }
-
-  // Responsive styles for mobile
-  const mobileMedia = `@media (max-width: 600px)`
-  const mobileGroupBg = {
-    flexDirection: 'column' as const,
-    gap: 10,
-    padding: '12px 6px',
-    margin: 0,
   }
 
   // Update the transaction type options
@@ -209,17 +212,12 @@ export function TransactionFilters({ onFilterChange, onExport }: TransactionFilt
 
   return (
     <div style={card as React.CSSProperties}>
-      <style>{`
-        ${mobileMedia} {
-          .filter-group-bg { flex-direction: column !important; gap: 10px !important; padding: 12px 6px !important; margin: 0 !important; }
-        }
-      `}</style>
       <div style={accentBar}></div>
       <div style={sectionTitle}>
         <span style={iconStyle}><Filter style={{ width: 20, height: 20, color: '#0057b7' }} /></span>
         Filter Transactions
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 24, width: '100%', boxSizing: 'border-box' as const }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20, width: '100%', boxSizing: 'border-box' as const }}>
         {/* Search */}
         <div style={{ width: '100%', boxSizing: 'border-box' as const }}>
           <label style={label}>Search</label>
@@ -234,8 +232,15 @@ export function TransactionFilters({ onFilterChange, onExport }: TransactionFilt
             />
           </div>
         </div>
+        
         {/* Status & Type */}
-        <div style={{ display: 'flex', gap: 16, width: '100%', boxSizing: 'border-box' as const, flexWrap: 'wrap' as const }}>
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: isMobile ? 'column' : 'row', 
+          gap: 16, 
+          width: '100%', 
+          boxSizing: 'border-box' as const
+        }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <label style={label}>Status</label>
             <select
@@ -262,8 +267,9 @@ export function TransactionFilters({ onFilterChange, onExport }: TransactionFilt
             </select>
           </div>
         </div>
+        
         {/* Date Range */}
-        <div className="filter-group-bg" style={{ ...groupBg, ...(isMobile ? mobileGroupBg : {}) }}>
+        <div style={groupBg}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <label style={label}>Date From</label>
             <div style={{ position: 'relative', width: '100%' }}>
@@ -289,8 +295,9 @@ export function TransactionFilters({ onFilterChange, onExport }: TransactionFilt
             </div>
           </div>
         </div>
+        
         {/* Amount Range */}
-        <div className="filter-group-bg" style={{ ...groupBg, ...(isMobile ? mobileGroupBg : {}) }}>
+        <div style={groupBg}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <label style={label}>Min Amount</label>
             <div style={{ position: 'relative', width: '100%' }}>
@@ -318,8 +325,10 @@ export function TransactionFilters({ onFilterChange, onExport }: TransactionFilt
             </div>
           </div>
         </div>
+        
         {/* Divider */}
         <div style={divider} />
+        
         {/* Buttons */}
         <div style={buttonRow}>
           <button

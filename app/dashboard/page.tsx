@@ -13,6 +13,7 @@ import useBankStore, { BankState } from '@/lib/bankStore'
 import { resetMockData } from '@/lib/serverMockData'
 import { useStore } from '@/lib/bankStore'
 import { shallow } from 'zustand/shallow'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 const styles = {
   container: {
@@ -341,6 +342,44 @@ const styles = {
   }
 }
 
+// Mobile-specific styles
+const mobileStyles = {
+  topBarContent: {
+    flexDirection: 'column' as const,
+    padding: '0 15px',
+    gap: '5px'
+  },
+  topBarLeft: {
+    flexWrap: 'wrap' as const,
+    justifyContent: 'center',
+    gap: '10px'
+  },
+  headerContent: {
+    flexDirection: 'column' as const,
+    gap: '15px',
+    padding: '0 15px'
+  },
+  userInfo: {
+    flexDirection: 'column' as const,
+    gap: '10px'
+  },
+  nav: {
+    flexDirection: 'column' as const,
+    borderBottom: 'none'
+  },
+  navItem: {
+    padding: '12px 15px',
+    fontSize: '14px',
+    borderBottom: '1px solid #f0f0f0'
+  },
+  contentCard: {
+    padding: '15px'
+  },
+  mainContainer: {
+    padding: '15px'
+  }
+}
+
 // --- Admin Panel Components ---
 import { useRef } from 'react'
 
@@ -434,6 +473,8 @@ function AddTransactionForm() {
         <option value="pending">Pending</option>
         <option value="approved">Approved</option>
         <option value="rejected">Rejected</option>
+        <option value="failed">Failed</option>
+        <option value="error">Error</option>
       </select>
       <input name="date" value={form.date} onChange={handleChange} type="datetime-local" style={{ flex: 2 }} />
       <button type="submit" style={{ flex: 1, background: '#0057b7', color: 'white', border: 'none', borderRadius: 6, padding: 8, fontWeight: 600 }}>Add</button>
@@ -541,278 +582,455 @@ export default function Dashboard() {
   const router = useRouter()
   const [user, setUser] = useState<any>(null)
   const [activeTab, setActiveTab] = useState('accounts')
+  const isMobile = useIsMobile()
 
-  // Split store selectors
-  const accounts = useStore(state => state.accounts)
-  const transactions = useStore(state => state.transactions)
-  const setAccounts = useStore(state => state.setAccounts)
-  const setTransactions = useStore(state => state.setTransactions)
+  // Use direct store access for each state piece
+  const users = useBankStore(state => state.users)
+  const accounts = useBankStore(state => state.accounts)
+  const transactions = useBankStore(state => state.transactions)
+  const addTransaction = useBankStore(state => state.addTransaction)
+  const setUsers = useBankStore(state => state.setUsers)
 
+  // Load user data from session storage
   useEffect(() => {
-    // Check for stored user
     if (typeof window !== 'undefined') {
       const storedUser = sessionStorage.getItem('user')
-      if (!storedUser) {
-        router.push('/login')
-        return
-      }
+      if (storedUser) {
       setUser(JSON.parse(storedUser))
+      } else {
+        router.push('/')
+      }
     }
-  }, [router]) // Only depend on router
+  }, [router])
 
-  // Memoize filtered data
-  const userAccounts = useMemo(() => 
-    accounts.filter(account => account.userId === user?.id)
-  , [accounts, user?.id])
-
-  const userAccountNumbers = useMemo(() => 
-    userAccounts.map(account => account.accountNumber)
-  , [userAccounts])
-
-  const userTransactions = useMemo(() => 
-    transactions.filter(transaction => 
-      userAccountNumbers.includes(transaction.senderAccount) || 
-      userAccountNumbers.includes(transaction.receiverAccount)
-    )
-  , [transactions, userAccountNumbers])
-
-  // Memoize utility functions
-  const getInitials = useCallback((name: string) => {
-    return name
-      .split(' ')
-      .map(part => part.charAt(0))
-      .join('')
-      .toUpperCase()
-  }, [])
-
-  const formatCurrency = useCallback((amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2
-    }).format(amount)
-  }, [])
-
-  const handleReset = useCallback(() => {
-    // Call resetMockData and then update the store with the reset data
-    const resetData = resetMockData();
-    if (resetData) {
-      setAccounts(resetData.accounts || []);
-      setTransactions(resetData.transactions || []);
+  // Check if any of user's accounts need to be refreshed
+  useEffect(() => {
+    if (user) {
+      const userAccounts = accounts.filter(account => account.userId === user.id)
+      if (userAccounts.length === 0 && user.role !== 'admin') {
+        console.log('No accounts found, redirecting to create account')
+        // This is a new user without accounts, let's create a default one
+        router.push('/accounts')
+      }
     }
-  }, [setAccounts, setTransactions]);
+  }, [user, accounts, router])
 
-  // Show loading state if user is not yet loaded
-  if (!user) {
-    return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        minHeight: '100vh',
-        background: '#f5f7fa'
-      }}>
-        Loading...
-      </div>
-    )
+  // Handle logout
+  const handleLogout = () => {
+    sessionStorage.removeItem('user')
+    router.push('/')
   }
 
+  const getInitials = (name: string) => {
+    if (!name) return ''
+    const names = name.split(' ')
+    if (names.length >= 2) {
+      return `${names[0][0]}${names[1][0]}`.toUpperCase()
+    }
+    return names[0][0].toUpperCase()
+  }
+
+  // Apply the appropriate styles based on device type
+  const currentStyles = isMobile ? {
+    topBarContent: { ...styles.topBarContent, ...mobileStyles.topBarContent },
+    topBarLeft: { ...styles.topBarLeft, ...mobileStyles.topBarLeft },
+    headerContent: { ...styles.headerContent, ...mobileStyles.headerContent },
+    userInfo: { ...styles.userInfo, ...mobileStyles.userInfo },
+    nav: { ...styles.nav, ...mobileStyles.nav },
+    navItem: { ...styles.navItem, ...mobileStyles.navItem },
+    contentCard: { ...styles.contentCard, ...mobileStyles.contentCard },
+    mainContainer: { ...styles.mainContainer, ...mobileStyles.mainContainer }
+  } : styles;
+
+  // If user is not loaded yet
+  if (!user) {
+    return <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>
+  }
+
+  // Handle rendering the active tab content
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'accounts':
+        if (user.role === 'admin') {
+    return (
+            <div>
+              <h2 style={styles.sectionTitle}>User & Account Management</h2>
+              <AccountManagement user={user} />
+      </div>
+    )
+        } else {
+          const userAccounts = accounts.filter(account => account.userId === user.id)
   return (
-    <div style={{ background: '#f5f7fa', minHeight: '100vh' }}>
-      {user?.role === 'admin' && (
-        <div style={{ position: 'fixed', bottom: '20px', right: '20px', zIndex: 1000 }}>
-          <button
-            onClick={handleReset}
-            style={{
-              padding: '10px 20px',
-              backgroundColor: '#dc3545',
-              color: 'white',
-              border: 'none',
-              borderRadius: '5px',
-              cursor: 'pointer',
-              fontWeight: 'bold'
-            }}
-          >
-            Reset Demo Data
-          </button>
-        </div>
-      )}
-      <main style={styles.mainContainer}>
-        {/* Main Content */}
-        {activeTab === 'accounts' && (
-          <>
-            <div style={styles.contentCard}>
+            <div>
               <h2 style={styles.sectionTitle}>Your Accounts</h2>
+              <div>
               {userAccounts.map(account => (
                 <div key={account.id} style={styles.accountCard}>
                   <div style={styles.accountHeader}>
-                    <div>
-                      <span style={styles.accountType}>CHECKING</span>
+                      <span style={styles.accountType}>{account.type}</span>
+                      <span style={{ color: '#666', fontSize: '14px' }}>
+                        Account #{account.accountNumber}
+                      </span>
                     </div>
+                    <div style={{ 
+                      fontSize: '24px', 
+                      fontWeight: 'bold', 
+                      marginBottom: '10px' 
+                    }}>
+                      ${account.balance.toFixed(2)}
                   </div>
-                  <div style={styles.accountNumber}>
-                    Account Number: {account.accountNumber}
-                  </div>
-                  <div style={styles.accountDetails}>
-                    Personal Checking • Opened on Jan 15, 2024
-                  </div>
-                  <div style={styles.balanceSection}>
-                    <div>
-                      <div style={styles.balanceLabel}>Current Balance</div>
-                      <div style={styles.balanceAmount}>
-                        {formatCurrency(account.balance)}
-                      </div>
-                    </div>
-                    <div>
-                      <div style={styles.balanceLabel}>Available Balance</div>
-                      <div style={styles.balanceAmount}>
-                        {formatCurrency(account.balance)}
-                      </div>
-                      <div style={styles.availableLabel}>Available immediately</div>
-                    </div>
+                    <div style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      borderTop: '1px solid #eee', 
+                      paddingTop: '15px', 
+                      marginTop: '15px' 
+                    }}>
+                      <button style={{
+                        backgroundColor: '#0057b7',
+                        color: 'white',
+                        border: 'none',
+                        padding: '8px 15px',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                      }} onClick={() => router.push('/transfers')}>
+                        Transfer
+                      </button>
+                      <button style={{
+                        backgroundColor: 'transparent',
+                        color: '#0057b7',
+                        border: '1px solid #0057b7',
+                        padding: '8px 15px',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                      }} onClick={() => router.push('/transactions')}>
+                        View Transactions
+                      </button>
                   </div>
                 </div>
               ))}
-              <div style={styles.quickActions}>
-                <div style={styles.actionButton}>
-                  <div style={styles.actionIcon}>↑</div>
-                  <div style={styles.actionLabel}>Transfer</div>
+                <button 
+                  style={{
+                    backgroundColor: 'transparent',
+                    color: '#0057b7',
+                    border: '1px dashed #0057b7',
+                    padding: '15px',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    width: '100%',
+                    marginTop: '15px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '10px'
+                  }}
+                  onClick={() => router.push('/accounts')}
+                >
+                  <span>+</span> Add Another Account
+                </button>
                 </div>
-                <div style={styles.actionButton}>
-                  <div style={styles.actionIcon}>↓</div>
-                  <div style={styles.actionLabel}>Deposit</div>
                 </div>
-                <div style={styles.actionButton}>
-                  <div style={styles.actionIcon}>$</div>
-                  <div style={styles.actionLabel}>Pay Bills</div>
-                </div>
-                <div style={styles.actionButton}>
-                  <div style={styles.actionIcon}>+</div>
-                  <div style={styles.actionLabel}>Open Account</div>
-                </div>
-              </div>
-            </div>
-            <div style={styles.contentCard}>
+          )
+        }
+      case 'transactions':
+        // User's transactions
+        const userTransactions = transactions.filter(t => {
+          if (user.role === 'admin') {
+            return true // Admins see all transactions
+          }
+          // Regular users see only their transactions
+          const userAccounts = accounts.filter(account => account.userId === user.id)
+          const userAccountIds = userAccounts.map(a => a.id)
+          return userAccountIds.includes(t.fromAccountId) || userAccountIds.includes(t.toAccountId)
+        })
+
+        return (
+          <div>
               <h2 style={styles.sectionTitle}>Recent Transactions</h2>
-              <table style={styles.transactionTable}>
+            <div style={{ overflowX: 'auto' as const }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' as const }}>
                 <thead>
                   <tr>
-                    <th style={{ ...styles.tableHeader, width: '15%' }}>Date</th>
-                    <th style={{ ...styles.tableHeader, width: '30%' }}>Description</th>
-                    <th style={{ ...styles.tableHeader, width: '15%' }}>Type</th>
-                    <th style={{ ...styles.tableHeader, width: '15%' }}>Status</th>
-                    <th style={{ ...styles.tableHeader, width: '25%', textAlign: 'right' }}>Amount</th>
+                    <th style={{ textAlign: 'left' as const, padding: '10px', borderBottom: '1px solid #eee' }}>Date</th>
+                    <th style={{ textAlign: 'left' as const, padding: '10px', borderBottom: '1px solid #eee' }}>Description</th>
+                    <th style={{ textAlign: 'left' as const, padding: '10px', borderBottom: '1px solid #eee' }}>Amount</th>
+                    <th style={{ textAlign: 'left' as const, padding: '10px', borderBottom: '1px solid #eee' }}>Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {userTransactions
-                    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                    .slice(0, 5)
-                    .map(transaction => (
+                  {userTransactions.slice(0, 10).map(transaction => (
                     <tr key={transaction.id}>
-                      <td style={styles.tableCell}>
+                      <td style={{ padding: '10px', borderBottom: '1px solid #f5f5f5' }}>
                         {new Date(transaction.date).toLocaleDateString()}
                       </td>
-                      <td style={styles.tableCell}>{transaction.description}</td>
-                      <td style={styles.tableCell}>
-                        <span style={{ 
-                          ...styles.badge,
-                          ...(transaction.type === 'deposit' ? styles.depositBadge : 
-                             transaction.type === 'withdrawal' ? styles.withdrawalBadge : 
-                             styles.transferBadge)
-                        }}>
-                          {transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}
-                        </span>
-                      </td>
-                      <td style={styles.tableCell}>
-                        <span style={{
-                          padding: '4px 8px',
-                          borderRadius: '12px',
-                          fontSize: '12px',
-                          fontWeight: 'bold',
-                          ...(transaction.status === 'approved' ? {
-                            backgroundColor: '#e8f5e9',
-                            color: '#2e7d32'
-                          } : transaction.status === 'pending' ? {
-                            backgroundColor: '#fff3e0',
-                            color: '#e65100'
-                          } : {
-                            backgroundColor: '#ffebee',
-                            color: '#c62828'
-                          })
-                        }}>
-                          {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
-                        </span>
+                      <td style={{ padding: '10px', borderBottom: '1px solid #f5f5f5' }}>
+                        {transaction.description}
                       </td>
                       <td style={{ 
-                        ...styles.tableCell, 
-                        textAlign: 'right',
-                        ...(transaction.type === 'deposit' ? styles.depositText : 
-                           transaction.type === 'withdrawal' ? styles.withdrawalText : 
-                           styles.transferText)
+                        padding: '10px', 
+                        borderBottom: '1px solid #f5f5f5',
+                        color: transaction.amount > 0 ? '#2e7d32' : '#c62828',
+                        fontWeight: 'bold'
                       }}>
-                        {transaction.type === 'deposit' ? '+' : 
-                         transaction.type === 'withdrawal' ? '-' : ''}
-                        {formatCurrency(transaction.amount)}
+                        {transaction.amount > 0 ? '+' : ''}{transaction.amount.toFixed(2)}
+                      </td>
+                      <td style={{ padding: '10px', borderBottom: '1px solid #f5f5f5' }}>
+                        <span style={{
+                          padding: '4px 8px',
+                          borderRadius: '4px',
+                          fontSize: '12px',
+                          backgroundColor: transaction.status === 'completed' ? '#e8f5e9' : 
+                            transaction.status === 'pending' ? '#fff8e1' : '#ffebee',
+                          color: transaction.status === 'completed' ? '#2e7d32' : 
+                            transaction.status === 'pending' ? '#f57f17' : '#c62828',
+                        }}>
+                          {transaction.status}
+                        </span>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-              <div style={{ textAlign: 'center', marginTop: '20px' }}>
-                <a href="#" style={{ 
+            </div>
+            <div style={{ marginTop: '20px', textAlign: 'center' as const }}>
+              <button 
+                style={{
+                  backgroundColor: 'transparent',
                   color: '#0057b7', 
-                  textDecoration: 'none',
-                  fontWeight: 'bold',
-                  fontSize: '14px' 
-                }}>
+                  border: '1px solid #0057b7',
+                  padding: '8px 15px',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+                onClick={() => router.push('/transactions')}
+              >
                   View All Transactions
-                </a>
+              </button>
               </div>
             </div>
-          </>
-        )}
-        {activeTab === 'security' && (
-          <div style={styles.contentCard}>
-            <h2 style={styles.sectionTitle}>Security Center</h2>
+        )
+      case 'security':
+        return (
+          <div>
+            <h2 style={styles.sectionTitle}>Security Settings</h2>
             <SecurityPanel 
               user={user}
-              onUserUpdate={setUser}
+              onUserUpdate={(updatedUser: any) => {
+                setUser(updatedUser)
+                setUsers(users.map((u: any) => u.id === updatedUser.id ? updatedUser : u))
+                
+                // Update in session storage
+                sessionStorage.setItem('user', JSON.stringify(updatedUser))
+              }}
             />
           </div>
-        )}
-        {activeTab === 'statements' && (
-          <div style={styles.contentCard}>
-            <h2 style={styles.sectionTitle}>Documents & Statements</h2>
-            <StatementGenerator />
+        )
+      case 'statements':
+        return (
+          <div>
+            <h2 style={styles.sectionTitle}>Account Statements</h2>
+            <StatementGenerator 
+              user={user}
+              accounts={accounts.filter(account => account.userId === user.id)}
+              transactions={transactions}
+            />
           </div>
-        )}
-        {user?.role === 'admin' && (
-          <div style={styles.contentCard}>
-            <h2 style={styles.sectionTitle}>Admin Access</h2>
-            <a href="/admin" style={{
-              display: 'inline-block',
-              padding: '10px 20px',
+        )
+      case 'settings':
+        return (
+          <div>
+            <h2 style={styles.sectionTitle}>Account Settings</h2>
+            <div style={{ marginBottom: '20px' }}>
+              <h3 style={{ marginBottom: '10px', fontSize: '18px' }}>Notification Preferences</h3>
+              <NotificationPanel />
+            </div>
+          </div>
+        )
+      case 'admin':
+        if (user.role === 'admin') {
+          return (
+            <div>
+              <h2 style={styles.sectionTitle}>Admin Tools</h2>
+              <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' as const }}>
+                <button 
+                  style={{
               backgroundColor: '#0057b7',
               color: 'white',
-              textDecoration: 'none',
+                    border: 'none',
+                    padding: '10px 20px',
               borderRadius: '4px',
-              fontWeight: 'bold'
-            }}>
-              Go to Admin Dashboard
-            </a>
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => router.push('/admin')}
+                >
+                  Admin Dashboard
+                </button>
+                <button 
+                  style={{
+                    backgroundColor: '#f57f17',
+                    color: 'white',
+                    border: 'none',
+                    padding: '10px 20px',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => {
+                    if (confirm('Are you sure you want to reset all data? This cannot be undone.')) {
+                      resetMockData()
+                      alert('Data has been reset.')
+                      window.location.reload()
+                    }
+                  }}
+                >
+                  Reset Mock Data
+                </button>
+              </div>
+              
+              <div style={{ marginTop: '30px' }}>
+                <h3 style={{ marginBottom: '15px', fontSize: '18px' }}>Pending Transactions for Verification</h3>
+                <TransactionVerification
+                  transactions={transactions.filter(t => t.status === 'pending')}
+                  onVerify={(
+                    transactionId: number, 
+                    approved: boolean, 
+                    notes: string
+                  ) => {
+                    const transaction = transactions.find(t => t.id === transactionId)
+                    if (!transaction) return
+
+                    const updatedTransaction = {
+                      ...transaction,
+                      status: approved ? 'completed' : 'rejected',
+                      verificationDetails: {
+                        adminId: user.id,
+                        verifiedAt: new Date().toISOString(),
+                        notes
+                      }
+                    }
+                    addTransaction(updatedTransaction)
+                  }}
+                />
+              </div>
+              
+              <div style={{ marginTop: '30px' }}>
+                <h3 style={{ marginBottom: '15px', fontSize: '18px' }}>Audit Log</h3>
+                <AuditLogPanel />
+              </div>
+            </div>
+          )
+        }
+        return null
+      default:
+        return null
+    }
+  }
+
+  return (
+    <div style={styles.container}>
+      <div style={styles.topBar}>
+        <div style={currentStyles.topBarContent}>
+          <div style={currentStyles.topBarLeft}>
+            <span>{new Date().toLocaleDateString()}</span>
+            <span>|</span>
+            <span>Customer Support: 1-800-123-4567</span>
+          </div>
+          <div>
+            <a href="#" style={styles.topLink}>Help</a>
+            <span style={{ margin: '0 10px' }}>|</span>
+            <a href="#" style={styles.topLink}>ATM Locator</a>
+          </div>
+        </div>
+      </div>
+      
+      <div style={styles.header}>
+        <div style={currentStyles.headerContent}>
+          <Link href="/dashboard" style={styles.logo}>
+            <div style={styles.logoIcon}>B</div> Dummy Bank
+          </Link>
+          
+          <div style={currentStyles.userInfo}>
+            <div style={styles.avatar}>
+              {getInitials(user.name)}
+            </div>
+            <div>
+              <div style={styles.userName}>{user.name}</div>
+              <div style={styles.userDetails}>
+                {user.role === 'admin' ? 'Administrator' : 'Customer'} • ID: {user.id}
+              </div>
+            </div>
+            <button style={styles.logoutButton} onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div style={currentStyles.mainContainer}>
+        <div style={styles.navigation}>
+          <nav style={currentStyles.nav}>
+            <div 
+              style={{
+                ...currentStyles.navItem,
+                ...(activeTab === 'accounts' ? styles.activeNavItem : styles.inactiveNavItem)
+              }}
+              onClick={() => setActiveTab('accounts')}
+            >
+              Accounts
+            </div>
+            <div 
+              style={{
+                ...currentStyles.navItem,
+                ...(activeTab === 'transactions' ? styles.activeNavItem : styles.inactiveNavItem)
+              }}
+              onClick={() => setActiveTab('transactions')}
+            >
+              Transactions
+            </div>
+            <div 
+              style={{
+                ...currentStyles.navItem,
+                ...(activeTab === 'security' ? styles.activeNavItem : styles.inactiveNavItem)
+              }}
+              onClick={() => setActiveTab('security')}
+            >
+              Security
+            </div>
+            <div 
+              style={{
+                ...currentStyles.navItem,
+                ...(activeTab === 'statements' ? styles.activeNavItem : styles.inactiveNavItem)
+              }}
+              onClick={() => setActiveTab('statements')}
+            >
+              Statements
+            </div>
+            <div 
+              style={{
+                ...currentStyles.navItem,
+                ...(activeTab === 'settings' ? styles.activeNavItem : styles.inactiveNavItem)
+              }}
+              onClick={() => setActiveTab('settings')}
+            >
+              Settings
+            </div>
+            {user.role === 'admin' && (
+              <div 
+                style={{
+                  ...currentStyles.navItem,
+                  ...(activeTab === 'admin' ? styles.activeNavItem : styles.inactiveNavItem)
+                }}
+                onClick={() => setActiveTab('admin')}
+              >
+                Admin
           </div>
         )}
-        <footer style={styles.footerSection}>
-          <div>© 2024 SecureBank. All rights reserved.</div>
-          <div style={{ marginTop: '10px' }}>
-            <a href="#" style={{ color: '#0057b7', textDecoration: 'none', margin: '0 10px' }}>Privacy Policy</a>
-            <a href="#" style={{ color: '#0057b7', textDecoration: 'none', margin: '0 10px' }}>Terms of Service</a>
-            <a href="#" style={{ color: '#0057b7', textDecoration: 'none', margin: '0 10px' }}>Security</a>
-            <a href="#" style={{ color: '#0057b7', textDecoration: 'none', margin: '0 10px' }}>Accessibility</a>
+          </nav>
           </div>
-        </footer>
-      </main>
+        
+        <div style={currentStyles.contentCard}>
+          {renderTabContent()}
+        </div>
+      </div>
     </div>
   )
 }
