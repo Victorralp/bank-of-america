@@ -1,0 +1,168 @@
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.receipt {
+  background-color: white;
+  border-radius: 8px;
+  padding: 40px;
+  width: 100%;
+  max-width: 400px;
+  position: relative;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+  font-family: monospace;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+  border-bottom: 2px dashed #e0e0e0;
+  padding-bottom: 20px;
+}
+
+.bankLogo {
+  font-size: 24px;
+  font-weight: bold;
+  color: #00377a;
+  margin-bottom: 10px;
+}
+
+.receiptTitle {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.receiptDate {
+  font-size: 14px;
+  color: #888;
+}
+
+.content {
+  border-bottom: 2px dashed #e0e0e0;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.label {
+  color: #666;
+}
+
+.value {
+  font-weight: bold;
+  color: #333;
+}
+
+.amount {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+  color: #00377a;
+}
+
+.status {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.statusBadge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: bold;
+  display: inline-block;
+}
+
+.statusPending {
+  background-color: var(--warning-light);
+  color: var(--warning);
+}
+
+.statusApproved {
+  background-color: var(--success-light);
+  color: var(--success);
+}
+
+.statusFailed {
+  background-color: var(--error-light);
+  color: var(--error);
+}
+
+.footer {
+  text-align: center;
+  font-size: 12px;
+  color: #888;
+}
+
+.closeButton {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  padding: 5px;
+}
+
+.printButton {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+}
+
+.verificationStamp {
+  text-align: center;
+  margin-top: 20px;
+  padding: 10px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  color: #00377a;
+  font-size: 12px;
+}
+
+/* Print styles */
+@media print {
+  .modal {
+    position: static;
+    background: none;
+    padding: 0;
+  }
+
+  .receipt {
+    box-shadow: none;
+    padding: 20px;
+  }
+
+  .closeButton,
+  .printButton {
+    display: none;
+  }
+} 

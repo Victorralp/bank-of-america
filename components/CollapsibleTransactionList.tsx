@@ -3,84 +3,12 @@
 import { useState } from 'react'
 import { Transaction } from '@/lib/mockData'
 import { format } from 'date-fns'
+import { FiChevronRight, FiArrowUpRight, FiArrowDownLeft, FiRepeat } from 'react-icons/fi'
+import styles from './CollapsibleTransactionList.module.css'
+import { TransactionDetail } from '@/components/TransactionDetail'
 
 interface CollapsibleTransactionListProps {
   transactions: Transaction[]
-}
-
-const styles = {
-  container: {
-    backgroundColor: 'white',
-    borderRadius: '10px',
-    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)',
-    overflow: 'hidden',
-  },
-  groupHeader: {
-    background: '#f0f4fa',
-    cursor: 'pointer',
-    fontWeight: 700,
-    fontSize: '18px',
-    color: '#00377a',
-    padding: '16px 24px',
-    borderBottom: '1px solid #e2e8f0',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    userSelect: 'none' as const,
-  },
-  chevron: {
-    marginLeft: 8,
-    fontSize: 18,
-    transition: 'transform 0.2s',
-  },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse' as const,
-  },
-  th: {
-    backgroundColor: '#f8fafc',
-    padding: '12px 16px',
-    textAlign: 'left' as const,
-    fontSize: '14px',
-    fontWeight: 'bold',
-    color: '#64748b',
-    borderBottom: '1px solid #e2e8f0',
-  },
-  td: {
-    padding: '12px 16px',
-    fontSize: '14px',
-    color: '#334155',
-    borderBottom: '1px solid #e2e8f0',
-  },
-  status: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    padding: '4px 8px',
-    borderRadius: '12px',
-    fontSize: '12px',
-    fontWeight: 'bold',
-  },
-  pending: {
-    backgroundColor: '#fff3e0',
-    color: '#e65100',
-  },
-  approved: {
-    backgroundColor: '#e8f5e9',
-    color: '#2e7d32',
-  },
-  rejected: {
-    backgroundColor: '#ffebee',
-    color: '#c62828',
-  },
-  amount: {
-    fontWeight: 'bold',
-  },
-  positive: {
-    color: '#2e7d32',
-  },
-  negative: {
-    color: '#c62828',
-  },
 }
 
 function groupByYear(transactions: Transaction[]) {
@@ -100,6 +28,7 @@ export function CollapsibleTransactionList({ transactions }: CollapsibleTransact
     const mostRecent = years[0]
     return { [mostRecent]: true }
   })
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
 
   const toggleYear = (year: string) => {
     setOpenYears((prev) => ({ ...prev, [year]: !prev[year] }))
@@ -112,17 +41,30 @@ export function CollapsibleTransactionList({ transactions }: CollapsibleTransact
   const formatTransactionType = (type: string) => {
     switch (type) {
       case 'deposit':
+      case 'admin-increase':
         return 'Deposit'
       case 'withdrawal':
+      case 'admin-decrease':
         return 'Withdrawal'
       case 'transfer':
         return 'Transfer'
-      case 'admin-increase':
-        return 'Admin Deposit'
-      case 'admin-decrease':
-        return 'Admin Withdrawal'
       default:
         return type.charAt(0).toUpperCase() + type.slice(1)
+    }
+  }
+
+  const getTransactionIcon = (type: string) => {
+    switch (type) {
+      case 'deposit':
+      case 'admin-increase':
+        return <FiArrowDownLeft className={styles.transactionIcon} />
+      case 'withdrawal':
+      case 'admin-decrease':
+        return <FiArrowUpRight className={styles.transactionIcon} />
+      case 'transfer':
+        return <FiRepeat className={styles.transactionIcon} />
+      default:
+        return null
     }
   }
 
@@ -130,17 +72,14 @@ export function CollapsibleTransactionList({ transactions }: CollapsibleTransact
     const formattedAmount = new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-    }).format(amount)
+    }).format(Math.abs(amount))
     
     // Determine if this is a positive or negative transaction
     const isPositive = ['deposit', 'admin-increase'].includes(type) || 
                       (type === 'transfer' && amount > 0)
     
     return (
-      <span style={{ 
-        ...styles.amount, 
-        ...(isPositive ? styles.positive : styles.negative) 
-      }}>
+      <span className={`${styles.amount} ${isPositive ? styles.positive : styles.negative}`}>
         {isPositive ? '+' : '-'}{formattedAmount}
       </span>
     )
@@ -154,12 +93,8 @@ export function CollapsibleTransactionList({ transactions }: CollapsibleTransact
         return styles.approved
       case 'rejected':
         return styles.rejected
-      case 'failed':
-        return styles.failed
-      case 'error':
-        return styles.error
       default:
-        return {}
+        return ''
     }
   }
 
@@ -167,68 +102,113 @@ export function CollapsibleTransactionList({ transactions }: CollapsibleTransact
     switch (transaction.type) {
       case 'transfer':
         return (
-          <>
-            {transaction.senderAccount} → {transaction.receiverAccount}
-          </>
+          <div className={styles.transferAccounts}>
+            <span>{transaction.senderAccount}</span>
+            <FiArrowUpRight className={styles.transferArrow} />
+            <span>{transaction.receiverAccount}</span>
+          </div>
         )
       case 'deposit':
       case 'admin-increase':
-        return transaction.senderAccount || 'Admin'
+        return transaction.senderAccount || 'External Account'
       case 'withdrawal':
       case 'admin-decrease':
-        return transaction.receiverAccount || 'Admin'
+        return transaction.receiverAccount || 'External Account'
       default:
-        return transaction.senderAccount || transaction.receiverAccount || 'External'
+        return transaction.senderAccount || transaction.receiverAccount || 'External Account'
     }
   }
 
+  const handleTransactionClick = (transaction: Transaction) => {
+    setSelectedTransaction(transaction)
+  }
+
+  if (transactions.length === 0) {
+    return (
+      <div className={styles.emptyState}>
+        <div className={styles.emptyIcon}>📋</div>
+        <h3>No Transactions Found</h3>
+        <p>Try adjusting your filters to see more results</p>
+      </div>
+    )
+  }
+
   return (
-    <div style={styles.container}>
-      {transactions.length > 0 ? (
-        years.map((year) => (
-          <div key={year}>
-            <div style={styles.groupHeader} onClick={() => toggleYear(year)}>
+    <div className={styles.container}>
+      {years.map((year) => (
+        <div key={year} className={styles.yearGroup}>
+          <div 
+            className={styles.yearHeader} 
+            onClick={() => toggleYear(year)}
+          >
+            <div className={styles.yearTitle}>
               <span>{year}</span>
-              <span style={{ ...styles.chevron, transform: openYears[year] ? 'rotate(90deg)' : 'rotate(0deg)' }}>
-                ▶
+              <span className={styles.transactionCount}>
+                {grouped[Number(year)].length} transactions
               </span>
             </div>
-            {openYears[year] && (
-              <table style={styles.table}>
+            <FiChevronRight 
+              className={`${styles.chevron} ${openYears[year] ? styles.chevronOpen : ''}`} 
+            />
+          </div>
+          
+          {openYears[year] && (
+            <div className={styles.transactionsTable}>
+              <table>
                 <thead>
                   <tr>
-                    <th style={styles.th}>Date</th>
-                    <th style={styles.th}>Type</th>
-                    <th style={styles.th}>Amount</th>
-                    <th style={styles.th}>From/To</th>
-                    <th style={styles.th}>Description</th>
-                    <th style={styles.th}>Status</th>
+                    <th>Date & Time</th>
+                    <th>Type</th>
+                    <th>Account(s)</th>
+                    <th>Description</th>
+                    <th>Amount</th>
+                    <th>Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {grouped[Number(year)].map((transaction) => (
-                    <tr key={transaction.id}>
-                      <td style={styles.td}>{formatDate(transaction.date)}</td>
-                      <td style={styles.td}>{formatTransactionType(transaction.type)}</td>
-                      <td style={styles.td}>{formatAmount(transaction.amount, transaction.type)}</td>
-                      <td style={styles.td}>{formatSenderReceiver(transaction)}</td>
-                      <td style={styles.td}>{transaction.description}</td>
-                      <td style={styles.td}>
-                        <span style={{ ...styles.status, ...getStatusStyle(transaction.status) }}>
-                          {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
+                  {grouped[Number(year)].map((transaction, index) => (
+                    <tr 
+                      key={index} 
+                      className={styles.transactionRow}
+                      onClick={() => handleTransactionClick(transaction)}
+                    >
+                      <td className={styles.dateCell}>
+                        {formatDate(transaction.date)}
+                      </td>
+                      <td className={styles.typeCell}>
+                        <div className={styles.typeWrapper}>
+                          {getTransactionIcon(transaction.type)}
+                          <span>{formatTransactionType(transaction.type)}</span>
+                        </div>
+                      </td>
+                      <td className={styles.accountCell}>
+                        {formatSenderReceiver(transaction)}
+                      </td>
+                      <td className={styles.descriptionCell}>
+                        {transaction.description}
+                      </td>
+                      <td className={styles.amountCell}>
+                        {formatAmount(transaction.amount, transaction.type)}
+                      </td>
+                      <td className={styles.statusCell}>
+                        <span className={`${styles.status} ${getStatusStyle(transaction.status)}`}>
+                          {transaction.status}
                         </span>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-            )}
-          </div>
-        ))
-      ) : (
-        <div style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>
-          No transactions found
+            </div>
+          )}
         </div>
+      ))}
+
+      {selectedTransaction && (
+        <TransactionDetail
+          transaction={selectedTransaction}
+          onClose={() => setSelectedTransaction(null)}
+        />
       )}
     </div>
   )

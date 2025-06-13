@@ -97,11 +97,44 @@ const useBankStore = create<BankState>((set, get) => ({
       }
     }));
 
+    // Update main storage
     updateMockData((data) => ({
       ...data,
       transactions: [...data.transactions, newTransaction],
       accounts: get().accounts,
     }));
+    
+    // Create a direct backup of this transaction to ensure persistence
+    if (typeof window !== 'undefined') {
+      try {
+        const backupKey = 'bankSystemTransactions';
+        const savedTransactions = window.localStorage.getItem(backupKey);
+        const parsedTransactions = savedTransactions ? JSON.parse(savedTransactions) : [];
+        parsedTransactions.push(newTransaction);
+        window.localStorage.setItem(backupKey, JSON.stringify(parsedTransactions));
+        console.log(`Transaction ${newTransaction.id} backed up directly to localStorage`);
+      } catch (error) {
+        console.error('Error creating direct transaction backup to localStorage:', error);
+      }
+      
+      // Save to JSON file via API
+      fetch('/api/transactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transaction: newTransaction }),
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          console.log(`Transaction successfully saved to JSON file with ID: ${data.transaction.id}`);
+        } else {
+          console.error('Failed to save transaction to JSON file:', data.error);
+        }
+      })
+      .catch(error => {
+        console.error('Error saving transaction to JSON file:', error);
+      });
+    }
   },
 
   updateAccountBalance: async (accountNumber: string, amount: number) => {
@@ -145,10 +178,110 @@ const useBankStore = create<BankState>((set, get) => ({
     return newAccount;
   },
 
-  // Simplified initialize function that does nothing since data is already loaded
+  // Enhanced initialize function that restores backed up transactions
   initialize: () => {
-    // Do nothing - we've already initialized with the data
-    return;
+    if (typeof window === 'undefined') return;
+    
+    // First try to load transactions from the JSON file via API
+    fetch('/api/transactions')
+      .then(response => response.json())
+      .then(data => {
+        if (data.transactions && Array.isArray(data.transactions) && data.transactions.length > 0) {
+          console.log(`Loaded ${data.transactions.length} transactions from JSON file`);
+          
+          // Get current state
+          const currentState = get();
+          const currentTransactions = currentState.transactions;
+          
+          // Filter out transactions that already exist in the state
+          const newTransactions = data.transactions.filter(
+            (t) => !currentTransactions.some(ct => ct.id === t.id)
+          );
+          
+          if (newTransactions.length > 0) {
+            // Add the transactions that don't already exist
+            set(produce((state) => {
+              state.transactions.push(...newTransactions);
+            }));
+            
+            // Update localStorage with the merged data
+            updateMockData(data => ({ 
+              ...data, 
+              transactions: [...currentState.transactions, ...newTransactions]
+            }));
+            
+            console.log(`Added ${newTransactions.length} transactions from JSON file to state`);
+          }
+        }
+        
+        // After loading from JSON file, also check localStorage as backup
+        checkLocalStorage();
+      })
+      .catch(error => {
+        console.error('Error loading transactions from JSON file:', error);
+        // Fall back to localStorage if API fails
+        checkLocalStorage();
+      });
+    
+    // Function to check for transactions in localStorage
+    function checkLocalStorage() {
+      try {
+        // Check for backed up transactions
+        const backupKey = 'bankSystemTransactions';
+        const savedTransactions = window.localStorage.getItem(backupKey);
+        
+        if (savedTransactions) {
+          const parsedTransactions = JSON.parse(savedTransactions);
+          if (parsedTransactions.length > 0) {
+            console.log(`Found ${parsedTransactions.length} backed up transactions in localStorage...`);
+            
+            // Get current state
+            const currentState = get();
+            const currentTransactions = currentState.transactions;
+            
+            // Filter out transactions that already exist in the state
+            const newTransactions = parsedTransactions.filter(
+              (t) => !currentTransactions.some(ct => ct.id === t.id)
+            );
+            
+            if (newTransactions.length > 0) {
+              // Add the transactions that don't already exist
+              set(produce((state) => {
+                state.transactions.push(...newTransactions);
+              }));
+              
+              // Update localStorage with the merged data
+              updateMockData(data => ({ 
+                ...data, 
+                transactions: [...currentState.transactions, ...newTransactions]
+              }));
+              
+              console.log(`Restored ${newTransactions.length} backed up transactions from localStorage`);
+              
+              // Try to save these transactions to the JSON file as well
+              fetch('/api/transactions', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ transactions: newTransactions }),
+              })
+              .then(response => response.json())
+              .then(data => {
+                if (data.success) {
+                  console.log(`Successfully backed up ${data.transactionsAdded} transactions to JSON file`);
+                }
+              })
+              .catch(error => {
+                console.error('Error backing up localStorage transactions to JSON file:', error);
+              });
+            } else {
+              console.log('All backed up transactions already exist in state');
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error restoring backed up transactions from localStorage:', error);
+      }
+    }
   },
 }));
 

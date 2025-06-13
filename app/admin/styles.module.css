@@ -29,16 +29,88 @@
 
 /* Section styles */
 .section {
-  margin-bottom: 40px;
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
 }
 
 .sectionTitle {
   font-size: 20px;
-  font-weight: bold;
-  color: #00377a;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #f0f0f0;
+  font-weight: 600;
+  color: var(--neutral-dark);
+  margin: 0;
+}
+
+.sectionActions {
+  display: flex;
+  gap: 12px;
+}
+
+.actionButton {
+  background-color: var(--white);
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.actionButton:hover {
+  background-color: rgba(0,82,204,0.04);
+}
+
+.notificationButton {
+  position: relative;
+  background: transparent;
+  border: none;
+  color: var(--neutral);
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.notificationButton:hover {
+  background-color: var(--background);
+  color: var(--primary);
+}
+
+.notificationBadge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background-color: var(--danger);
+  color: var(--white);
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
 }
 
 /* Tab navigation */
@@ -239,4 +311,149 @@
     border-radius: 0;
     box-shadow: none;
   }
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .sectionHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .sectionActions {
+    width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+
+  .actionButton {
+    white-space: nowrap;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section {
+    padding: 32px;
+  }
+
+  .sectionTitle {
+    font-size: 22px;
+  }
+}
+
+.adminHeader {
+  margin-bottom: 24px;
+}
+
+.adminTitle {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--foreground);
+  margin-bottom: 4px;
+}
+
+.adminSubtitle {
+  font-size: 16px;
+  color: var(--muted);
+}
+
+.adminContent {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.navigation {
+  margin-bottom: 8px;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  background-color: #f8f9fb;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+.navItem:hover {
+  color: var(--foreground);
+  background-color: white;
+}
+
+.activeNavItem {
+  color: var(--foreground);
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.inactiveNavItem {
+  color: var(--muted);
+}
+
+.contentArea {
+  background-color: white;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.section {
+  width: 100%;
+}
+
+.sectionHeader {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sectionTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.sectionActions {
+  display: flex;
+  gap: 12px;
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: var(--background);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.actionButton:hover {
+  background-color: var(--border);
 } 

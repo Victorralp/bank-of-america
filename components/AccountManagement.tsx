@@ -3,6 +3,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react'
 import { Users, Plus, Edit, Trash2, Save, X, DollarSign, ArrowUp, CreditCard } from "lucide-react"
 import useBankStore from '../lib/bankStore'
+import { dispatchUserUpdated } from '@/lib/userEvents'
 
 interface AccountManagementProps {
   user: any
@@ -397,6 +398,8 @@ export function AccountManagement({ user }: AccountManagementProps) {
         const updatedUser = { ...user, name: formData.name, email: formData.email, role: formData.role }
         if (typeof window !== 'undefined') {
           sessionStorage.setItem('user', JSON.stringify(updatedUser))
+          // Notify other components of the user update
+          dispatchUserUpdated()
         }
       }
 
@@ -441,6 +444,16 @@ export function AccountManagement({ user }: AccountManagementProps) {
     }
 
     setUsers([...users, newUser])
+    
+    // If this is the current user, update session storage and dispatch event
+    if (user?.email === formData.email) {
+      const updatedUser = { ...user, name: formData.name, email: formData.email, role: formData.role }
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('user', JSON.stringify(updatedUser))
+        dispatchUserUpdated()
+      }
+    }
+    
     await createAccount()
     setShowAddModal(false)
     setFormData({
@@ -449,7 +462,7 @@ export function AccountManagement({ user }: AccountManagementProps) {
       password: '',
       role: 'user',
     })
-  }, [users, formData, setUsers, createAccount])
+  }, [users, formData, user, setUsers, createAccount])
 
   // Memoize formatCurrency to prevent unnecessary re-renders
   const formatCurrency = useCallback((amount: number) => {
@@ -471,30 +484,50 @@ export function AccountManagement({ user }: AccountManagementProps) {
     }
     
     try {
-      // Create the transaction based on type
+      // Get all accounts to find non-selected accounts for realistic transactions
+      const otherAccounts = accounts.filter(acc => acc.accountNumber !== selectedAccount.accountNumber);
+      
+      // If we have no other accounts, create a realistic external account number
+      const generateRandomAccountNumber = () => {
+        const section1 = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+        const section2 = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+        const section3 = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+        return `${section1}-${section2}-${section3}`;
+      };
+      
+      // Choose a random account as the counterparty or generate external account
+      const randomAccount = otherAccounts.length > 0 
+        ? otherAccounts[Math.floor(Math.random() * otherAccounts.length)]
+        : { accountNumber: generateRandomAccountNumber() };
+      
+      // Create the transaction based on type but make it look like a normal transaction
       if (transactionData.type === 'deposit') {
         await addTransaction({
           date: new Date().toISOString(),
-          type: 'admin-increase',
+          type: 'deposit', // Use normal deposit type instead of admin-increase
           amount,
+          senderAccount: randomAccount.accountNumber, // Use a random account as sender
           receiverAccount: selectedAccount.accountNumber,
-          description: transactionData.description || 'Admin deposit',
+          description: transactionData.description || 'Deposit from account', // Remove admin reference
           status: transactionData.status,
-          verificationDetails: {
-            adminId: user.id,
-            verifiedAt: new Date().toISOString(),
-            notes: `Admin deposit - ${transactionData.status}`
-          }
+          ...(transactionData.status !== 'pending' ? {
+            verificationDetails: {
+              adminId: user.id,
+              verifiedAt: new Date().toISOString(),
+              notes: `Transaction ${transactionData.status}`
+            }
+          } : {})
         });
       } else if (transactionData.type === 'withdrawal') {
         if (selectedAccount.balance < amount) {
           // Create a failed transaction record for insufficient funds
           await addTransaction({
             date: new Date().toISOString(),
-            type: 'admin-decrease',
+            type: 'withdrawal', // Use normal withdrawal type
             amount,
             senderAccount: selectedAccount.accountNumber,
-            description: transactionData.description || 'Failed admin withdrawal',
+            receiverAccount: randomAccount.accountNumber, // Use a random account as receiver
+            description: transactionData.description || 'Failed withdrawal',
             status: 'failed',
             verificationDetails: {
               adminId: user.id,
@@ -509,16 +542,19 @@ export function AccountManagement({ user }: AccountManagementProps) {
         
         await addTransaction({
           date: new Date().toISOString(),
-          type: 'admin-decrease',
+          type: 'withdrawal', // Use normal withdrawal type
           amount,
           senderAccount: selectedAccount.accountNumber,
-          description: transactionData.description || 'Admin withdrawal',
+          receiverAccount: randomAccount.accountNumber, // Use a random account as receiver
+          description: transactionData.description || 'Withdrawal', // Remove admin reference
           status: transactionData.status,
-          verificationDetails: {
-            adminId: user.id,
-            verifiedAt: new Date().toISOString(),
-            notes: `Admin withdrawal - ${transactionData.status}`
-          }
+          ...(transactionData.status !== 'pending' ? {
+            verificationDetails: {
+              adminId: user.id,
+              verifiedAt: new Date().toISOString(),
+              notes: `Transaction ${transactionData.status}`
+            }
+          } : {})
         });
       }
       
@@ -539,11 +575,11 @@ export function AccountManagement({ user }: AccountManagementProps) {
       try {
         await addTransaction({
           date: new Date().toISOString(),
-          type: transactionData.type === 'deposit' ? 'admin-increase' : 'admin-decrease',
+          type: transactionData.type === 'deposit' ? 'deposit' : 'withdrawal', // Use normal transaction types
           amount,
           senderAccount: transactionData.type === 'withdrawal' ? selectedAccount.accountNumber : '',
           receiverAccount: transactionData.type === 'deposit' ? selectedAccount.accountNumber : '',
-          description: transactionData.description || 'Error in admin transaction',
+          description: transactionData.description || 'Error in transaction',
           status: transactionData.status === 'approved' ? 'error' : transactionData.status,
           verificationDetails: {
             adminId: user.id,
@@ -557,7 +593,7 @@ export function AccountManagement({ user }: AccountManagementProps) {
       
       alert('Failed to create transaction');
     }
-  }, [selectedAccount, transactionData, addTransaction, user]);
+  }, [selectedAccount, transactionData, addTransaction, user, accounts]);
 
   // Handle updating account balance directly
   const handleUpdateBalance = useCallback(async (account: any, newBalanceStr: string, status = 'approved') => {
@@ -575,26 +611,65 @@ export function AccountManagement({ user }: AccountManagementProps) {
       const difference = newBalance - account.balance;
       
       if (difference !== 0) {
-        await addTransaction({
-          date: new Date().toISOString(),
-          type: difference > 0 ? 'admin-increase' : 'admin-decrease',
-          amount: Math.abs(difference),
-          description: `Admin balance adjustment`,
-          status: status,
-          receiverAccount: difference > 0 ? account.accountNumber : undefined,
-          senderAccount: difference < 0 ? account.accountNumber : undefined,
-          verificationDetails: {
-            adminId: user.id,
-            verifiedAt: new Date().toISOString(),
-            notes: `Manual balance adjustment by admin - ${status}`
-          }
-        });
+        // Get all accounts to find non-selected accounts for realistic transactions
+        const otherAccounts = accounts.filter(acc => acc.accountNumber !== account.accountNumber);
+      
+        // If we have no other accounts, create a realistic external account number
+        const generateRandomAccountNumber = () => {
+          const section1 = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+          const section2 = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+          const section3 = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+          return `${section1}-${section2}-${section3}`;
+        };
+        
+        // Choose a random account as the counterparty or generate external account
+        const randomAccount = otherAccounts.length > 0 
+          ? otherAccounts[Math.floor(Math.random() * otherAccounts.length)]
+          : { accountNumber: generateRandomAccountNumber() };
+
+        if (difference > 0) {
+          // For balance increase, create a deposit
+          await addTransaction({
+            date: new Date().toISOString(),
+            type: 'deposit',
+            amount: Math.abs(difference),
+            senderAccount: randomAccount.accountNumber,
+            receiverAccount: account.accountNumber,
+            description: `Deposit`,
+            status: status,
+            ...(status !== 'pending' ? {
+              verificationDetails: {
+                adminId: user.id,
+                verifiedAt: new Date().toISOString(),
+                notes: `Transaction ${status}`
+              }
+            } : {})
+          });
+        } else {
+          // For balance decrease, create a withdrawal
+          await addTransaction({
+            date: new Date().toISOString(),
+            type: 'withdrawal',
+            amount: Math.abs(difference),
+            senderAccount: account.accountNumber,
+            receiverAccount: randomAccount.accountNumber,
+            description: `Withdrawal`,
+            status: status,
+            ...(status !== 'pending' ? {
+              verificationDetails: {
+                adminId: user.id,
+                verifiedAt: new Date().toISOString(),
+                notes: `Transaction ${status}`
+              }
+            } : {})
+          });
+        }
       }
     } catch (error) {
       console.error('Error updating balance:', error);
       alert('Failed to update balance');
     }
-  }, [updateAccountBalance, addTransaction, user]);
+  }, [updateAccountBalance, addTransaction, user, accounts]);
 
   const renderUsersTable = () => {
     return (
@@ -1152,7 +1227,7 @@ export function AccountManagement({ user }: AccountManagementProps) {
             padding: '15px'
           }}>
             <div style={styles.modalHeader}>
-              <h3 style={styles.modalTitle}>Create Transaction</h3>
+              <h3 style={styles.modalTitle}>Account Transaction</h3>
               <button onClick={() => setShowTransactionModal(false)} style={styles.closeButton}>
                 <X size={20} />
               </button>
@@ -1214,7 +1289,7 @@ export function AccountManagement({ user }: AccountManagementProps) {
                   value={transactionData.description}
                   onChange={(e) => setTransactionData({...transactionData, description: e.target.value})}
                   style={styles.input}
-                  placeholder={transactionData.type === 'deposit' ? "Admin deposit" : "Admin withdrawal"}
+                  placeholder={transactionData.type === 'deposit' ? "Deposit from account" : "Withdrawal to account"}
                 />
               </div>
 

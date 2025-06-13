@@ -1,0 +1,233 @@
+.container {
+  width: 100%;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.yearGroup {
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.yearGroup:last-child {
+  border-bottom: none;
+}
+
+.yearHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background-color: #f8f9fb;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  user-select: none;
+}
+
+.yearTitle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.transactionCount {
+  font-size: 14px;
+  color: var(--muted);
+  font-weight: normal;
+}
+
+.chevron {
+  transition: transform 0.3s ease;
+}
+
+.chevronOpen {
+  transform: rotate(90deg);
+}
+
+.transactionsTable {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.transactionsTable table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.transactionsTable th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.transactionsTable td {
+  padding: 16px;
+  font-size: 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--foreground);
+}
+
+.transactionRow {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.transactionRow:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.dateCell {
+  white-space: nowrap;
+  color: var(--muted);
+}
+
+.typeCell {
+  white-space: nowrap;
+}
+
+.typeWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.transactionIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.accountCell {
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.transferAccounts {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.transferArrow {
+  color: var(--muted);
+  width: 14px;
+  height: 14px;
+}
+
+.descriptionCell {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.amountCell {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.amount {
+  font-weight: 600;
+}
+
+.positive {
+  color: var(--success);
+}
+
+.negative {
+  color: var(--error);
+}
+
+.statusCell {
+  white-space: nowrap;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.pending {
+  background-color: #fff3e0;
+  color: #e65100;
+}
+
+.approved {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.rejected {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 0;
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.emptyState h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--foreground);
+}
+
+.emptyState p {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+  .yearHeader {
+    padding: 16px;
+  }
+
+  .yearTitle {
+    font-size: 16px;
+  }
+
+  .transactionCount {
+    font-size: 12px;
+  }
+
+  .transactionsTable th,
+  .transactionsTable td {
+    padding: 12px 16px;
+  }
+
+  .typeWrapper {
+    gap: 6px;
+  }
+
+  .transactionIcon {
+    padding: 4px;
+  }
+
+  .descriptionCell {
+    max-width: 150px;
+  }
+} 

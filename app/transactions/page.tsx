@@ -7,6 +7,8 @@ import { Transaction } from '@/lib/mockData'
 import { useStore } from '@/lib/bankStore'
 import { shallow } from 'zustand/shallow'
 import { useIsMobile } from '@/hooks/use-mobile'
+import styles from './styles.module.css'
+import { FiDownload, FiFilter } from 'react-icons/fi'
 
 export default function TransactionsPage() {
   const isMobile = useIsMobile()
@@ -24,6 +26,7 @@ export default function TransactionsPage() {
   , [transactions])
   
   const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([])
+  const [showFilters, setShowFilters] = useState(!isMobile)
   
   // Set initial filtered transactions after loading
   useEffect(() => {
@@ -107,44 +110,51 @@ export default function TransactionsPage() {
   }
 
   return (
-    <div style={{
-      padding: isMobile ? '16px' : '32px',
-      maxWidth: '1400px',
-      margin: '0 auto',
-    }}>
-      <h1 style={{
-        fontSize: isMobile ? '1.5rem' : '2rem',
-        fontWeight: 700,
-        color: '#00377a',
-        marginBottom: isMobile ? '16px' : '24px',
-        letterSpacing: '-1px',
-      }}>Transactions</h1>
-      
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: isMobile ? '1fr' : 'minmax(300px, 350px) minmax(600px, 1fr)',
-        gap: isMobile ? '16px' : '32px',
-        width: '100%',
-      }}>
-        <div style={{
-          width: '100%',
-          boxSizing: 'border-box' as const,
-        }}>
-          <TransactionFilters onFilterChange={handleFilterChange} onExport={handleExport} />
+    <>
+      <div className={styles.pageHeader}>
+        <div className={styles.headerLeft}>
+          <h1 className={styles.pageTitle}>Transactions</h1>
+          <div className={styles.stats}>
+            <div className={styles.stat}>
+              <span className={styles.statLabel}>Total Transactions</span>
+              <span className={styles.statValue}>{filteredTransactions.length}</span>
+            </div>
+            <div className={styles.stat}>
+              <span className={styles.statLabel}>Time Period</span>
+              <span className={styles.statValue}>Last 30 Days</span>
+            </div>
+          </div>
         </div>
         
-        <div style={{
-          background: 'white',
-          borderRadius: isMobile ? '12px' : '16px',
-          boxShadow: '0 4px 24px rgba(0,0,0,0.07)',
-          padding: isMobile ? '16px' : '24px',
-          width: '100%',
-          boxSizing: 'border-box' as const,
-          overflowX: 'auto' as const,
-        }}>
+        <div className={styles.headerActions}>
+          <button 
+            className={`${styles.actionButton} ${styles.secondaryButton}`}
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <FiFilter />
+            <span>Filters</span>
+          </button>
+          <button 
+            className={`${styles.actionButton} ${styles.primaryButton}`}
+            onClick={handleExport}
+          >
+            <FiDownload />
+            <span>Export</span>
+          </button>
+        </div>
+      </div>
+      
+      <div className={styles.pageContent}>
+        {showFilters && (
+          <div className={styles.filtersPanel}>
+            <TransactionFilters onFilterChange={handleFilterChange} onExport={handleExport} />
+          </div>
+        )}
+        
+        <div className={styles.transactionsPanel}>
           <CollapsibleTransactionList transactions={filteredTransactions} />
         </div>
       </div>
-    </div>
+    </>
   )
 }

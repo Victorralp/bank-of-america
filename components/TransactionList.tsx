@@ -35,15 +35,13 @@ export function TransactionList({ transactions }: TransactionListProps) {
   const formatTransactionType = (type: string) => {
     switch (type) {
       case 'deposit':
+      case 'admin-increase':
         return 'Deposit'
       case 'withdrawal':
+      case 'admin-decrease':
         return 'Withdrawal'
       case 'transfer':
         return 'Transfer'
-      case 'admin-increase':
-        return 'Admin Deposit'
-      case 'admin-decrease':
-        return 'Admin Withdrawal'
       default:
         return type.charAt(0).toUpperCase() + type.slice(1)
     }
@@ -98,12 +96,12 @@ export function TransactionList({ transactions }: TransactionListProps) {
         )
       case 'deposit':
       case 'admin-increase':
-        return transaction.senderAccount || 'Admin'
+        return transaction.senderAccount || 'External Account'
       case 'withdrawal':
       case 'admin-decrease':
-        return transaction.receiverAccount || 'Admin'
+        return transaction.receiverAccount || 'External Account'
       default:
-        return transaction.senderAccount || transaction.receiverAccount || 'External'
+        return transaction.senderAccount || transaction.receiverAccount || 'External Account'
     }
   }
 

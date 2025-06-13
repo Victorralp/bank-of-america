@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import useBankStore from '@/lib/bankStore'
+import { dispatchUserUpdated } from '@/lib/userEvents'
 
 const styles = {
   container: {
@@ -177,6 +178,9 @@ export default function ProfilePage() {
       setUser(updatedUser)
 
       setEditSuccess('Profile updated successfully!')
+
+      // Dispatch user-updated event
+      dispatchUserUpdated()
     } catch (error) {
       setEditError('Failed to update profile. Please try again.')
     }

@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { Check, X, AlertCircle, DollarSign, Calendar, User } from 'lucide-react'
-import { Transaction } from '@/frontend/lib/mockData'
+import { Transaction } from '@/lib/mockData'
+import { TransactionDetailModal } from './TransactionDetailModal'
 
 const styles = {
   container: {
@@ -178,6 +179,7 @@ interface TransactionVerificationProps {
 export function TransactionVerification({ transactions, onVerify }: TransactionVerificationProps) {
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending')
   const [verificationNotes, setVerificationNotes] = useState<Record<number, string>>({})
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
 
   const filteredTransactions = transactions.filter(t => {
     if (filter === 'all') return true
@@ -225,121 +227,132 @@ export function TransactionVerification({ transactions, onVerify }: TransactionV
   return (
     <div style={styles.container}>
       <div style={styles.header}>
-        <h2 style={styles.title}>
+        <div style={styles.title}>
           <AlertCircle size={20} />
-          <span>Transaction Verification</span>
-        </h2>
+          Transaction Verification Queue
+        </div>
         <div style={styles.filterContainer}>
           <select
+            style={styles.select}
             value={filter}
             onChange={(e) => setFilter(e.target.value as any)}
-            style={styles.select}
           >
             <option value="all">All Transactions</option>
-            <option value="pending">Pending Verification</option>
+            <option value="pending">Pending</option>
             <option value="approved">Approved</option>
             <option value="rejected">Rejected</option>
           </select>
         </div>
       </div>
 
-      {filteredTransactions.length === 0 ? (
-        <div style={styles.emptyState}>
-          <AlertCircle size={48} style={styles.emptyIcon} />
-          <p>No transactions to verify</p>
-        </div>
-      ) : (
-        <div style={styles.transactionList}>
-          {filteredTransactions.map((transaction) => (
-            <div key={transaction.id} style={styles.transactionCard}>
+      <div style={styles.transactionList}>
+        {filteredTransactions.length === 0 ? (
+          <div style={styles.emptyState}>
+            <AlertCircle style={styles.emptyIcon} />
+            <p>No transactions found</p>
+          </div>
+        ) : (
+          filteredTransactions.map((transaction) => (
+            <div
+              key={transaction.id}
+              style={styles.transactionCard}
+              onClick={() => setSelectedTransaction(transaction)}
+              role="button"
+              tabIndex={0}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  setSelectedTransaction(transaction)
+                }
+              }}
+            >
               <div style={styles.transactionHeader}>
                 <div style={styles.amount}>
-                  {formatCurrency(transaction.amount)}
+                  {new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD'
+                  }).format(transaction.amount)}
                 </div>
-                <div style={{ ...styles.status, ...getStatusStyle(transaction.status) }}>
+                <div
+                  style={{
+                    ...styles.status,
+                    ...(styles as any)[`${transaction.status}Status`]
+                  }}
+                >
                   {transaction.status === 'pending' && <AlertCircle size={14} />}
                   {transaction.status === 'approved' && <Check size={14} />}
                   {transaction.status === 'rejected' && <X size={14} />}
-                  <span>{transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}</span>
+                  {transaction.status.toUpperCase()}
                 </div>
               </div>
 
               <div style={styles.details}>
                 <div style={styles.detailItem}>
-                  <span style={styles.detailLabel}>
+                  <div style={styles.detailLabel}>
                     <Calendar size={14} />
                     Date
-                  </span>
-                  <span style={styles.detailValue}>{formatDate(transaction.date)}</span>
+                  </div>
+                  <div style={styles.detailValue}>
+                    {new Date(transaction.timestamp).toLocaleDateString()}
+                  </div>
                 </div>
                 <div style={styles.detailItem}>
-                  <span style={styles.detailLabel}>
+                  <div style={styles.detailLabel}>
                     <User size={14} />
-                    From
-                  </span>
-                  <span style={styles.detailValue}>{transaction.senderAccount}</span>
-                </div>
-                <div style={styles.detailItem}>
-                  <span style={styles.detailLabel}>
-                    <DollarSign size={14} />
-                    Type
-                  </span>
-                  <span style={styles.detailValue}>
-                    {transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}
-                  </span>
-                </div>
-                <div style={styles.detailItem}>
-                  <span style={styles.detailLabel}>
-                    <AlertCircle size={14} />
-                    Description
-                  </span>
-                  <span style={styles.detailValue}>{transaction.description}</span>
+                    Initiated By
+                  </div>
+                  <div style={styles.detailValue}>{transaction.initiatedBy}</div>
                 </div>
               </div>
 
               {transaction.status === 'pending' && (
                 <>
-                  <input
-                    type="text"
-                    placeholder="Enter verification notes..."
-                    value={verificationNotes[transaction.id] || ''}
-                    onChange={(e) => setVerificationNotes({
-                      ...verificationNotes,
-                      [transaction.id]: e.target.value
-                    })}
+                  <textarea
                     style={styles.notesInput}
+                    placeholder="Add verification notes..."
+                    value={verificationNotes[transaction.id] || ''}
+                    onChange={(e) =>
+                      setVerificationNotes({
+                        ...verificationNotes,
+                        [transaction.id]: e.target.value
+                      })
+                    }
+                    onClick={(e) => e.stopPropagation()}
                   />
                   <div style={styles.actions}>
                     <button
-                      onClick={() => handleVerify(transaction.id, true)}
                       style={{ ...styles.button, ...styles.approveButton }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleVerify(transaction.id, true)
+                      }}
                     >
-                      <Check size={16} />
+                      <Check size={14} />
                       Approve
                     </button>
                     <button
-                      onClick={() => handleVerify(transaction.id, false)}
                       style={{ ...styles.button, ...styles.rejectButton }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleVerify(transaction.id, false)
+                      }}
                     >
-                      <X size={16} />
+                      <X size={14} />
                       Reject
                     </button>
                   </div>
                 </>
               )}
-
-              {transaction.verificationDetails && (
-                <div style={{ marginTop: '15px', fontSize: '13px', color: '#666' }}>
-                  <p>Verified on: {formatDate(transaction.verificationDetails.verifiedAt)}</p>
-                  <p>Notes: {transaction.verificationDetails.notes}</p>
-                  {transaction.verificationDetails.reason && (
-                    <p>Reason: {transaction.verificationDetails.reason}</p>
-                  )}
-                </div>
-              )}
             </div>
-          ))}
-        </div>
+          ))
+        )}
+      </div>
+
+      {selectedTransaction && (
+        <TransactionDetailModal
+          transaction={selectedTransaction}
+          onClose={() => setSelectedTransaction(null)}
+          onVerify={onVerify}
+        />
       )}
     </div>
   )

@@ -1,0 +1,12 @@
+[
+  {
+    "date": "2025-06-13T18:14:45.810Z",
+    "type": "transfer",
+    "amount": 70000,
+    "senderAccount": "2024-4582-9163",
+    "receiverAccount": "2024-7391-8245",
+    "description": "Transfer",
+    "status": "failed",
+    "id": 1
+  }
+]
