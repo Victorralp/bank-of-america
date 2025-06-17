@@ -835,13 +835,8 @@ export default function Dashboard() {
           Pay Bills
         </Link>
         <button 
-          className={styles.actionButton} 
+          className={`${styles.actionButton} ${styles.newSavingsButton}`} 
           onClick={handleCreateSavingsAccount}
-          style={{ 
-            backgroundColor: '#10b981', 
-            color: 'white',
-            borderColor: '#10b981'
-          }}
         >
           <FiPlusCircle className={styles.actionIcon} />
           New Savings
