@@ -164,6 +164,7 @@ const useBankStore = create<BankState>((set, get) => ({
       type,
       balance: 0,
       pendingBalance: 0,
+      ...(type === 'savings' && { interestRate: 2.5 }) // Add interest rate for savings accounts
     };
 
     set(produce((state: BankState) => {

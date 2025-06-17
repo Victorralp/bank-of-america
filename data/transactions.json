@@ -8,5 +8,280 @@
     "description": "Transfer",
     "status": "failed",
     "id": 1
+  },
+  {
+    "id": 2,
+    "type": "admin-decrease",
+    "amount": 39653,
+    "date": "2025-05-30T15:30:24.985Z",
+    "description": "Investment Deposit",
+    "status": "approved",
+    "senderAccount": "2024-4582-9163",
+    "receiverAccount": "EXT-001",
+    "verificationDetails": {
+      "adminId": 1,
+      "verifiedAt": "2025-06-16T21:25:17.350Z",
+      "notes": "Transaction approved"
+    }
+  },
+  {
+    "id": 3,
+    "type": "admin-decrease",
+    "amount": 39653,
+    "date": "2025-05-30T15:30:24.985Z",
+    "description": "Investment Deposit",
+    "status": "approved",
+    "senderAccount": "2024-4582-9163",
+    "receiverAccount": "EXT-001",
+    "verificationDetails": {
+      "adminId": 1,
+      "verifiedAt": "2025-06-16T21:25:18.258Z",
+      "notes": "Transaction approved"
+    }
+  },
+  {
+    "id": 4,
+    "type": "admin-decrease",
+    "amount": 39653,
+    "date": "2025-05-30T15:30:24.985Z",
+    "description": "Investment Deposit",
+    "status": "rejected",
+    "senderAccount": "2024-4582-9163",
+    "receiverAccount": "EXT-001",
+    "verificationDetails": {
+      "adminId": 1,
+      "verifiedAt": "2025-06-16T21:25:19.639Z",
+      "notes": "Transaction rejected"
+    }
+  },
+  {
+    "id": 5,
+    "type": "admin-decrease",
+    "amount": 39653,
+    "date": "2025-05-30T15:30:24.985Z",
+    "description": "Investment Deposit",
+    "status": "approved",
+    "senderAccount": "2024-4582-9163",
+    "receiverAccount": "EXT-001",
+    "verificationDetails": {
+      "adminId": 1,
+      "verifiedAt": "2025-06-16T21:25:22.705Z",
+      "notes": "lknf"
+    }
+  },
+  {
+    "date": "2025-06-16T21:26:18.808Z",
+    "type": "deposit",
+    "amount": 10000,
+    "senderAccount": "2024-7391-8245",
+    "receiverAccount": "7126-1672-8926",
+    "description": "saving",
+    "status": "approved",
+    "verificationDetails": {
+      "adminId": 1,
+      "verifiedAt": "2025-06-16T21:26:18.808Z",
+      "notes": "Transaction approved"
+    },
+    "id": 6
+  },
+  {
+    "date": "2025-06-16T21:27:49.693Z",
+    "type": "deposit",
+    "amount": 100000,
+    "senderAccount": "5984-6517-8640",
+    "receiverAccount": "2024-4582-9163",
+    "description": "investment",
+    "status": "approved",
+    "verificationDetails": {
+      "adminId": 1,
+      "verifiedAt": "2025-06-16T21:27:49.693Z",
+      "notes": "Transaction approved"
+    },
+    "id": 7
+  },
+  {
+    "date": "2025-06-16T21:29:07.410Z",
+    "type": "deposit",
+    "amount": 9999999.98,
+    "senderAccount": "5984-6517-8640",
+    "receiverAccount": "2024-7391-8245",
+    "description": "Deposit from account",
+    "status": "approved",
+    "verificationDetails": {
+      "adminId": 1,
+      "verifiedAt": "2025-06-16T21:29:07.410Z",
+      "notes": "Transaction approved"
+    },
+    "id": 8
+  },
+  {
+    "date": "2025-06-16T21:43:47.896Z",
+    "type": "deposit",
+    "amount": 2000,
+    "senderAccount": "2024-7391-8245",
+    "receiverAccount": "0548-5935-5566",
+    "description": "Deposit",
+    "status": "approved",
+    "verificationDetails": {
+      "adminId": 1,
+      "verifiedAt": "2025-06-16T21:43:47.896Z",
+      "notes": "Transaction approved"
+    },
+    "id": 9
+  },
+  {
+    "date": "2025-06-16T21:45:42.756Z",
+    "type": "deposit",
+    "amount": 3999.97,
+    "senderAccount": "2024-4582-9163",
+    "receiverAccount": "2024-5731-2984",
+    "description": "for a new house",
+    "status": "approved",
+    "verificationDetails": {
+      "adminId": 1,
+      "verifiedAt": "2025-06-16T21:45:42.756Z",
+      "notes": "Transaction approved"
+    },
+    "id": 10
+  },
+  {
+    "date": "2025-06-16T22:24:15.264Z",
+    "type": "withdrawal",
+    "amount": 350.25,
+    "senderAccount": "2024-4582-9163",
+    "receiverAccount": "EXT-BILL-CREDITCARD",
+    "description": "Bill Payment: Visa Card",
+    "status": "approved",
+    "id": 11
+  },
+  {
+    "date": "2025-06-17T08:52:38.854Z",
+    "type": "withdrawal",
+    "amount": 1200,
+    "senderAccount": "2024-4582-9163",
+    "receiverAccount": "EXT-BILL-OTHER",
+    "description": "Bill Payment: Rent Payment",
+    "status": "approved",
+    "id": 12
+  },
+  {
+    "date": "2025-06-17T08:52:40.685Z",
+    "type": "withdrawal",
+    "amount": 145.75,
+    "senderAccount": "2024-4582-9163",
+    "receiverAccount": "EXT-BILL-UTILITIES",
+    "description": "Bill Payment: City Water & Power",
+    "status": "approved",
+    "id": 13
+  },
+  {
+    "date": "2025-06-17T08:52:41.847Z",
+    "type": "withdrawal",
+    "amount": 79.99,
+    "senderAccount": "2024-4582-9163",
+    "receiverAccount": "EXT-BILL-INTERNET",
+    "description": "Bill Payment: Fiber Connect",
+    "status": "approved",
+    "id": 14
+  },
+  {
+    "date": "2025-06-17T08:52:49.121Z",
+    "type": "withdrawal",
+    "amount": 95.5,
+    "senderAccount": "2024-4582-9163",
+    "receiverAccount": "EXT-BILL-PHONE",
+    "description": "Bill Payment: Mobile Service",
+    "status": "approved",
+    "id": 15
+  },
+  {
+    "date": "2025-06-17T08:52:50.156Z",
+    "type": "withdrawal",
+    "amount": 350.25,
+    "senderAccount": "2024-4582-9163",
+    "receiverAccount": "EXT-BILL-CREDITCARD",
+    "description": "Bill Payment: Visa Card",
+    "status": "approved",
+    "id": 16
+  },
+  {
+    "date": "2025-06-17T08:53:42.424Z",
+    "type": "withdrawal",
+    "amount": 70000,
+    "senderAccount": "2024-4582-9163",
+    "receiverAccount": "EXT-BILL-OTHER",
+    "description": "Bill Payment: micheal ben - maintainance (Scheduled for 6/17/2025) (Monthly recurring payment)",
+    "status": "pending",
+    "id": 17
+  },
+  {
+    "date": "2025-06-17T08:55:59.057Z",
+    "type": "transfer",
+    "amount": 100000,
+    "senderAccount": "2024-7391-8245",
+    "receiverAccount": "5984-6517-8640",
+    "description": "Transfer",
+    "status": "approved",
+    "id": 18
+  },
+  {
+    "date": "2025-06-17T08:56:08.539Z",
+    "type": "withdrawal",
+    "amount": 1200,
+    "senderAccount": "2024-4582-9163",
+    "receiverAccount": "EXT-BILL-OTHER",
+    "description": "Bill Payment: Rent Payment",
+    "status": "approved",
+    "id": 19
+  },
+  {
+    "date": "2025-06-17T08:56:09.998Z",
+    "type": "withdrawal",
+    "amount": 145.75,
+    "senderAccount": "2024-4582-9163",
+    "receiverAccount": "EXT-BILL-UTILITIES",
+    "description": "Bill Payment: City Water & Power",
+    "status": "approved",
+    "id": 20
+  },
+  {
+    "date": "2025-06-17T08:56:11.032Z",
+    "type": "withdrawal",
+    "amount": 79.99,
+    "senderAccount": "2024-4582-9163",
+    "receiverAccount": "EXT-BILL-INTERNET",
+    "description": "Bill Payment: Fiber Connect",
+    "status": "approved",
+    "id": 21
+  },
+  {
+    "date": "2025-06-17T08:56:14.556Z",
+    "type": "withdrawal",
+    "amount": 350.25,
+    "senderAccount": "2024-4582-9163",
+    "receiverAccount": "EXT-BILL-CREDITCARD",
+    "description": "Bill Payment: Visa Card",
+    "status": "approved",
+    "id": 22
+  },
+  {
+    "date": "2025-06-17T08:56:15.703Z",
+    "type": "withdrawal",
+    "amount": 95.5,
+    "senderAccount": "2024-4582-9163",
+    "receiverAccount": "EXT-BILL-PHONE",
+    "description": "Bill Payment: Mobile Service",
+    "status": "approved",
+    "id": 23
+  },
+  {
+    "date": "2025-06-17T08:58:41.905Z",
+    "type": "transfer",
+    "amount": 700000,
+    "senderAccount": "2024-7391-8245",
+    "receiverAccount": "3052-6940-2753",
+    "description": "my salary",
+    "status": "approved",
+    "id": 24
   }
 ]

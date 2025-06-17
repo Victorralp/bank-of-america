@@ -113,7 +113,7 @@ export default function TransactionStatus() {
       
       <div className="text-sm">
         <span className="font-medium">Total Transactions:</span>{' '}
-        <span className="text-blue-600 font-medium">{status.totalTransactions}</span>
+        <span className="text-emerald-600 font-medium">{status.totalTransactions}</span>
       </div>
       
       {status.lastSync && (

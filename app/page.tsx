@@ -31,7 +31,7 @@ const styles = {
   },
   rightPanel: {
     flex: '1 1 45%',
-    background: 'linear-gradient(135deg, #0057b7 0%, #00377a 100%)',
+    background: 'linear-gradient(135deg, #0bbd8c 0%, #099e76 100%)',
     padding: '50px 40px',
     color: 'white',
     display: 'flex',
@@ -42,7 +42,7 @@ const styles = {
     fontSize: '24px',
     fontWeight: 'bold',
     marginBottom: '30px',
-    color: '#00377a',
+    color: '#0bbd8c',
     display: 'flex',
     alignItems: 'center',
     gap: '10px'
@@ -50,7 +50,7 @@ const styles = {
   logoIcon: {
     width: '36px',
     height: '36px',
-    backgroundColor: '#0057b7',
+    backgroundColor: '#0bbd8c',
     borderRadius: '50%',
     display: 'flex',
     alignItems: 'center',
@@ -75,7 +75,7 @@ const styles = {
     fontSize: '22px',
     fontWeight: 'bold',
     margin: '0 0 10px',
-    color: '#00377a'
+    color: '#0bbd8c'
   },
   subtext: {
     fontSize: '14px',
@@ -101,14 +101,14 @@ const styles = {
     transition: 'border 0.3s',
     outline: 'none',
     '&:focus': {
-      borderColor: '#0057b7'
+      borderColor: '#0bbd8c'
     }
   },
   checkbox: {
     marginRight: '10px'
   },
   button: {
-    backgroundColor: '#0057b7',
+    backgroundColor: '#0bbd8c',
     color: 'white',
     border: 'none',
     padding: '14px 0',
@@ -120,11 +120,11 @@ const styles = {
     marginTop: '10px',
     transition: 'background-color 0.3s',
     '&:hover': {
-      backgroundColor: '#00377a'
+      backgroundColor: '#099e76'
     }
   },
   forgotLink: {
-    color: '#0057b7',
+    color: '#0bbd8c',
     textDecoration: 'none',
     fontSize: '14px',
     float: 'right' as const,
@@ -141,7 +141,7 @@ const styles = {
     color: '#666'
   },
   link: {
-    color: '#0057b7',
+    color: '#0bbd8c',
     textDecoration: 'none',
     '&:hover': {
       textDecoration: 'underline'
@@ -381,12 +381,12 @@ export default function LoginPage() {
             <div style={currentStyles.demoCredential}>
               <span>Admin:</span>
               <span>admin@example.com / admin123</span>
-              <button onClick={() => fillDemoCredentials('admin')} style={{ background: 'none', border: 'none', color: '#0057b7', cursor: 'pointer', textDecoration: 'underline' }}>Fill</button>
+              <button onClick={() => fillDemoCredentials('admin')} style={{ background: 'none', border: 'none', color: '#0bbd8c', cursor: 'pointer', textDecoration: 'underline' }}>Fill</button>
             </div>
             <div style={currentStyles.demoCredential}>
               <span>User:</span>
               <span>user@example.com / user123</span>
-              <button onClick={() => fillDemoCredentials('user')} style={{ background: 'none', border: 'none', color: '#0057b7', cursor: 'pointer', textDecoration: 'underline' }}>Fill</button>
+              <button onClick={() => fillDemoCredentials('user')} style={{ background: 'none', border: 'none', color: '#0bbd8c', cursor: 'pointer', textDecoration: 'underline' }}>Fill</button>
             </div>
           </div>
 

@@ -345,6 +345,11 @@
 
 .adminHeader {
   margin-bottom: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
 }
 
 .adminTitle {
@@ -456,4 +461,190 @@
 
 .actionButton:hover {
   background-color: var(--border);
+}
+
+.mobileMenuToggle {
+  display: none;
+}
+
+.mobileMenuButton {
+  background: none;
+  border: none;
+  color: var(--foreground);
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.mobileMenuButton:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.panelContent {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Mobile dashboard panels */
+.dashboardPanel {
+  margin-bottom: 16px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .adminHeader {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  
+  .mobileMenuToggle {
+    display: block;
+    position: absolute;
+    top: 16px;
+    right: 16px;
+  }
+  
+  .adminTitle {
+    font-size: 20px;
+    width: 100%;
+    padding-right: 40px; /* Space for menu button */
+  }
+  
+  .adminSubtitle {
+    font-size: 14px;
+    width: 100%;
+    padding-right: 40px; /* Space for menu button */
+  }
+  
+  .navigation {
+    margin-bottom: 16px;
+  }
+  
+  .nav {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .navItem {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .mobileNavHidden {
+    display: none;
+  }
+  
+  .mobileNavVisible {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.95);
+    z-index: 100;
+    padding: 20px;
+    overflow-y: auto;
+    animation: slideIn 0.3s ease-in-out;
+  }
+  
+  @keyframes slideIn {
+    from {
+      transform: translateY(-100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+  
+  .mobileNavVisible .nav {
+    margin-top: 60px;
+    border-radius: 8px;
+  }
+  
+  .mobileNavVisible .navItem {
+    padding: 16px;
+    font-size: 18px;
+  }
+  
+  .sectionHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .sectionActions {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    margin-top: 12px;
+  }
+  
+  .section {
+    padding: 16px;
+  }
+  
+  .panelContent {
+    padding: 8px 0;
+  }
+  
+  /* Dashboard panel mobile adjustments */
+  .dashboardPanel {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .panelContent .flex {
+    flex-wrap: wrap;
+  }
+}
+
+/* Tablet responsive styles */
+@media (min-width: 769px) and (max-width: 1023px) {
+  .navLabel {
+    display: none;
+  }
+  
+  .navItem {
+    padding: 12px;
+  }
+  
+  .nav {
+    justify-content: center;
+  }
+  
+  .adminHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* Desktop styles */
+@media (min-width: 1024px) {
+  .adminContent {
+    flex-direction: row;
+  }
+  
+  .navigation {
+    width: 280px;
+    margin-right: 24px;
+    margin-bottom: 0;
+  }
+  
+  .nav {
+    flex-direction: column;
+    height: auto;
+  }
+  
+  .navItem {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .contentArea {
+    flex: 1;
+  }
 } 

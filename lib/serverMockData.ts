@@ -159,9 +159,31 @@ export function resetMockData(): MockDB {
   }
 }
 
+// Force reset the mock data on next load
+export function forceResetMockData(): void {
+  if (typeof window === 'undefined') return;
+  
+  try {
+    // Clear all localStorage data related to the bank system
+    window.localStorage.removeItem(STORAGE_KEY);
+    window.localStorage.removeItem('bankSystemTransactions');
+    window.localStorage.removeItem('user');
+    
+    // Set the initial mock data
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(mockData));
+    console.log('Mock data forcefully reset to initial state');
+    
+    // Reload the page to apply changes
+    window.location.reload();
+  } catch (error) {
+    console.error('Error forcefully resetting mock data:', error);
+  }
+}
+
 export default {
   load: loadMockData,
   save: saveMockData,
   update: updateMockData,
   reset: resetMockData,
+  forceReset: forceResetMockData
 }; 

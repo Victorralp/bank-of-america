@@ -67,7 +67,7 @@ export default function BackupButton() {
             ? 'bg-green-500 hover:bg-green-600 text-white'
             : status === 'error'
             ? 'bg-red-500 hover:bg-red-600 text-white'
-            : 'bg-blue-500 hover:bg-blue-600 text-white'
+            : 'bg-emerald-500 hover:bg-emerald-600 text-white'
         }`}
         disabled={status === 'loading'}
       >

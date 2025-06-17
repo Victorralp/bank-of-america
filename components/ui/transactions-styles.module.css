@@ -56,8 +56,8 @@
 }
 
 .badgeCompleted {
-  background-color: #e3f2fd;
-  color: #1976d2;
+  background-color: #e7f9f4;
+  color: #0bbd8c;
 }
 
 .badgeFailed {
@@ -187,7 +187,7 @@
 }
 
 .primaryButton {
-  background-color: #0057b7;
+  background-color: #0bbd8c;
   color: white;
   border: none;
 }
@@ -233,9 +233,9 @@
 }
 
 .activePageButton {
-  background-color: #0057b7;
+  background-color: #0bbd8c;
   color: white;
-  border-color: #0057b7;
+  border-color: #0bbd8c;
 }
 
 /* Responsive styles for tablet and up */
@@ -249,7 +249,7 @@
   }
 }
 
-/* Media query for mobile devices */
+/* Mobile-specific styles */
 @media (max-width: 767px) {
   .desktopTable {
     display: none;

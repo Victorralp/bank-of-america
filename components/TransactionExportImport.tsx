@@ -313,7 +313,7 @@ export default function TransactionExportImport() {
             className={`flex items-center justify-center gap-2 py-3 px-4 rounded-md transition-colors ${
               exportStatus === 'loading'
                 ? 'bg-gray-300 cursor-not-allowed'
-                : 'bg-blue-500 hover:bg-blue-600 text-white'
+                : 'bg-emerald-500 hover:bg-emerald-600 text-white'
             }`}
           >
             {exportStatus === 'loading' ? (
@@ -330,7 +330,7 @@ export default function TransactionExportImport() {
             className={`flex items-center justify-center gap-2 py-3 px-4 rounded-md transition-colors ${
               exportStatus === 'loading'
                 ? 'bg-gray-300 cursor-not-allowed'
-                : 'bg-blue-500 hover:bg-blue-600 text-white'
+                : 'bg-emerald-500 hover:bg-emerald-600 text-white'
             }`}
           >
             {exportStatus === 'loading' ? (
@@ -369,8 +369,8 @@ export default function TransactionExportImport() {
                 file:mr-4 file:py-2 file:px-4
                 file:rounded-md file:border-0
                 file:text-sm file:font-medium
-                file:bg-blue-50 file:text-blue-700
-                hover:file:bg-blue-100
+                file:bg-emerald-50 file:text-emerald-700
+                hover:file:bg-emerald-100
                 disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </label>
@@ -382,7 +382,7 @@ export default function TransactionExportImport() {
           )}
           
           {importStatus === 'loading' && (
-            <div className="flex items-center justify-center gap-2 text-blue-600">
+            <div className="flex items-center justify-center gap-2 text-emerald-600">
               <FiLoader className="w-5 h-5 animate-spin" />
               <span>{message}</span>
             </div>
