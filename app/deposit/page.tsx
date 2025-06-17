@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useStore } from '@/lib/bankStore'
 import { shallow } from 'zustand/shallow'
 import { useIsMobile } from '@/hooks/use-mobile'
