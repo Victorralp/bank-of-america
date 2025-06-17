@@ -222,7 +222,7 @@ export default function AccountsPage() {
                   </div>
                 </div>
                 
-                {isSavings && account.interestRate && (
+                {isSavings && typeof account.interestRate === 'number' && (
                   <SavingsProjection balance={account.balance} interestRate={account.interestRate} />
                 )}
               </div>

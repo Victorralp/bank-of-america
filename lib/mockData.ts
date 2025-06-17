@@ -19,6 +19,7 @@ export interface Account {
   type: string;
   balance: number;
   pendingBalance: number;
+  interestRate?: number;
 }
 
 export interface Transaction {
@@ -81,7 +82,8 @@ export const initialMockAccounts: Account[] = [
     accountNumber: '2024-7391-8245', // Fixed number for admin account
     type: 'checking',
     balance: 10000.00,
-    pendingBalance: 0
+    pendingBalance: 0,
+    interestRate: undefined
   },
   {
     id: 2,
@@ -89,7 +91,8 @@ export const initialMockAccounts: Account[] = [
     accountNumber: '2024-4582-9163', // Fixed number for demo user account
     type: 'checking',
     balance: 5000.00,
-    pendingBalance: 0
+    pendingBalance: 0,
+    interestRate: undefined
   }
 ];
 
@@ -209,7 +212,7 @@ export const initialMockNotifications: Notification[] = [
 ];
 
 // Update the appendRandomTransactions function to use the new account numbers
-export function appendRandomTransactions(transactionsArray) {
+export function appendRandomTransactions(transactionsArray: Transaction[]) {
   const types = ['deposit', 'withdrawal', 'transfer'] as const;
   const statuses = ['approved', 'pending', 'rejected'] as const;
   const descriptions = [
