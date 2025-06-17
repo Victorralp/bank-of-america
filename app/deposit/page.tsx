@@ -304,7 +304,7 @@ const mobileStyles = {
 }
 
 // Merge with existing styles
-const styles = {
+const combinedStyles = {
   ...styles,
   ...mobileStyles,
 }
@@ -373,14 +373,14 @@ export default function DepositPage() {
 
   // Apply the appropriate styles based on device type
   const currentStyles = isMobile ? {
-    container: { ...styles.container, ...mobileStyles.container },
-    form: { ...styles.form, ...mobileStyles.form },
-    title: { ...styles.title, ...mobileStyles.title },
-    recentDeposits: { ...styles.recentDeposits, ...mobileStyles.recentDeposits },
-    th: { ...styles.th, ...mobileStyles.th },
-    td: { ...styles.td, ...mobileStyles.td },
-    depositMethods: { ...styles.depositMethods, ...mobileStyles.depositMethods }
-  } : styles;
+    container: { ...combinedStyles.container, ...mobileStyles.container },
+    form: { ...combinedStyles.form, ...mobileStyles.form },
+    title: { ...combinedStyles.title, ...mobileStyles.title },
+    recentDeposits: { ...combinedStyles.recentDeposits, ...mobileStyles.recentDeposits },
+    th: { ...combinedStyles.th, ...mobileStyles.th },
+    td: { ...combinedStyles.td, ...mobileStyles.td },
+    depositMethods: { ...combinedStyles.depositMethods, ...mobileStyles.depositMethods }
+  } : combinedStyles;
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -541,279 +541,254 @@ export default function DepositPage() {
   }, [deposits, userAccounts])
 
   return (
-    <div style={currentStyles.container}>
-      <div style={currentStyles.form}>
-        <div style={styles.tabs}>
-          <div 
-            style={{
-              ...styles.tab, 
-              ...(activeTab === 'deposit' ? styles.activeTab : {})
-            }}
-            onClick={() => setActiveTab('deposit')}
-          >
-            Make a Deposit
+    <div style={combinedStyles.container}>
+      <div style={combinedStyles.tabs}>
+        <div style={{
+          ...combinedStyles.tab,
+          ...(activeTab === 'deposit' ? combinedStyles.activeTab : {})
+        }} onClick={() => setActiveTab('deposit')}>
+          Make a Deposit
+        </div>
+        <div style={{
+          ...combinedStyles.tab,
+          ...(activeTab === 'history' ? combinedStyles.activeTab : {})
+        }} onClick={() => setActiveTab('history')}>
+          Deposit History
+        </div>
+      </div>
+      
+      {activeTab === 'deposit' ? (
+        <form style={currentStyles.form} onSubmit={handleSubmit}>
+          <h1 style={currentStyles.title}>Make a Deposit</h1>
+          
+          {success && (
+            <div style={combinedStyles.successMessage}>
+              <FiCheck size={16} />
+              <span>Deposit request submitted successfully! Your transaction will be processed shortly.</span>
+            </div>
+          )}
+          
+          {error && <div style={combinedStyles.error}><FiAlertCircle size={14} style={{marginRight: '5px'}} />{error}</div>}
+          
+          <div style={currentStyles.depositMethods}>
+            <div style={{
+              ...combinedStyles.depositMethod,
+              ...(formData.method === 'direct' ? combinedStyles.depositMethodActive : {})
+            }} onClick={() => selectMethod('direct')}>
+              <FiArrowDownLeft style={combinedStyles.depositIcon} />
+              <div>Direct Deposit</div>
+            </div>
+            <div style={{
+              ...combinedStyles.depositMethod,
+              ...(formData.method === 'check' ? combinedStyles.depositMethodActive : {})
+            }} onClick={() => selectMethod('check')}>
+              <FiCheck style={combinedStyles.depositIcon} />
+              <div>Check Deposit</div>
+            </div>
+            <div style={{
+              ...combinedStyles.depositMethod,
+              ...(formData.method === 'wire' ? combinedStyles.depositMethodActive : {})
+            }} onClick={() => selectMethod('wire')}>
+              <FiClock style={combinedStyles.depositIcon} />
+              <div>Wire Transfer</div>
+            </div>
           </div>
-          <div 
+          
+          <div style={combinedStyles.processingTime}>
+            <FiClock size={16} />
+            <div>Processing time: {processingTimes[formData.method as keyof typeof processingTimes]}</div>
+          </div>
+          
+          <div style={combinedStyles.methodDetails}>
+            {formData.method === 'direct' && (
+              <>Use direct deposit for payroll, tax refunds, or other electronic transfers.</>
+            )}
+            {formData.method === 'check' && (
+              <>Upload a photo of your check for mobile deposit. Funds will be available after verification.</>
+            )}
+            {formData.method === 'wire' && (
+              <>Use wire transfers for large amounts or when funds need to be available the same day.</>
+            )}
+          </div>
+          
+          {formData.method === 'check' && (
+            <>
+              <div 
+                style={{
+                  ...combinedStyles.uploadSection,
+                  ...(checkImage ? combinedStyles.uploadSectionActive : {})
+                }}
+                onClick={triggerFileInput}
+              >
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={handleImageUpload} 
+                  ref={fileInputRef}
+                  style={combinedStyles.fileInput}
+                />
+                
+                {!checkImage && (
+                  <>
+                    <FiCamera style={combinedStyles.uploadIcon} />
+                    <div style={combinedStyles.uploadText}>
+                      <strong>Click to take a photo of your check</strong>
+                    </div>
+                    <div style={combinedStyles.uploadText}>
+                      Ensure all four corners are visible and the check is well-lit
+                    </div>
+                  </>
+                )}
+                
+                {checkImage && (
+                  <>
+                    <img src={checkImage} alt="Check" style={combinedStyles.uploadPreview} />
+                    <div style={combinedStyles.uploadText}>
+                      Click to change image
+                    </div>
+                  </>
+                )}
+                
+                {uploadProgress > 0 && uploadProgress < 100 && (
+                  <div style={combinedStyles.progressContainer}>
+                    <div style={{
+                      ...combinedStyles.progressBar,
+                      width: `${uploadProgress}%`
+                    }}></div>
+                  </div>
+                )}
+              </div>
+              
+              <div style={combinedStyles.infoBox}>
+                <FiInfo size={16} style={combinedStyles.infoIcon} />
+                <div>
+                  <strong>Check deposit guidelines:</strong>
+                  <ul style={{marginTop: '5px', paddingLeft: '15px'}}>
+                    <li>Endorse the back with "For mobile deposit only"</li>
+                    <li>Ensure the check amount is clearly visible</li>
+                    <li>Funds may be held for 1-3 business days</li>
+                  </ul>
+                </div>
+              </div>
+            </>
+          )}
+          
+          <div style={combinedStyles.formGroup}>
+            <label style={combinedStyles.label} htmlFor="toAccount">Deposit To</label>
+            <select
+              id="toAccount"
+              name="toAccount"
+              value={formData.toAccount}
+              onChange={handleInputChange}
+              required
+              style={combinedStyles.select}
+            >
+              <option value="">Select an account</option>
+              {userAccounts.map(account => (
+                <option key={account.accountNumber} value={account.accountNumber}>
+                  {account.type.charAt(0).toUpperCase() + account.type.slice(1)} Account ({account.accountNumber.slice(-4)})
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          <div style={combinedStyles.formGroup}>
+            <label style={combinedStyles.label} htmlFor="amount">Amount</label>
+            <input
+              id="amount"
+              name="amount"
+              type="number"
+              min="0.01"
+              step="0.01"
+              placeholder="0.00"
+              value={formData.amount}
+              onChange={handleInputChange}
+              required
+              style={combinedStyles.input}
+            />
+            
+            <div style={combinedStyles.limitInfo}>
+              <span>Min: $0.01</span>
+              <span>Max: {formatCurrency(depositLimits[formData.method as keyof typeof depositLimits])}</span>
+            </div>
+          </div>
+          
+          <div style={combinedStyles.formGroup}>
+            <label style={combinedStyles.label} htmlFor="description">Description (Optional)</label>
+            <input
+              id="description"
+              name="description"
+              type="text"
+              placeholder="e.g., Payroll deposit"
+              value={formData.description}
+              onChange={handleInputChange}
+              style={combinedStyles.input}
+            />
+          </div>
+          
+          <button 
+            type="submit" 
+            disabled={isProcessing || (formData.method === 'check' && !checkImage)}
             style={{
-              ...styles.tab, 
-              ...(activeTab === 'history' ? styles.activeTab : {})
+              ...combinedStyles.button,
+              opacity: isProcessing || (formData.method === 'check' && !checkImage) ? 0.7 : 1,
+              cursor: isProcessing || (formData.method === 'check' && !checkImage) ? 'not-allowed' : 'pointer',
             }}
-            onClick={() => setActiveTab('history')}
           >
-            Deposit History
+            {isProcessing ? 'Processing...' : 'Submit Deposit'}
+          </button>
+          
+          <div style={combinedStyles.securityNotice}>
+            <FiLock size={14} />
+            <span>
+              Your deposit information is encrypted and secure. We never store your check images permanently.
+            </span>
+          </div>
+        </form>
+      ) : (
+        <div style={currentStyles.recentDeposits}>
+          <h2 style={currentStyles.title}>Recent Deposits</h2>
+          
+          <div style={combinedStyles.tableContainer}>
+            <table style={combinedStyles.table}>
+              <thead>
+                <tr>
+                  <th style={currentStyles.th}>Date</th>
+                  <th style={currentStyles.th}>Amount</th>
+                  <th style={currentStyles.th}>Account</th>
+                  <th style={currentStyles.th}>Description</th>
+                  <th style={currentStyles.th}>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {deposits.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} style={{textAlign: 'center', padding: '20px'}}>No deposits found</td>
+                  </tr>
+                ) : (
+                  deposits.map(deposit => (
+                    <tr key={deposit.id}>
+                      <td style={currentStyles.td}>{new Date(deposit.date).toLocaleDateString()}</td>
+                      <td style={currentStyles.td}>{formatCurrency(deposit.amount)}</td>
+                      <td style={currentStyles.td}>{deposit.receiverAccount.slice(-4)}</td>
+                      <td style={currentStyles.td}>{deposit.description}</td>
+                      <td style={currentStyles.td}>
+                        <span style={{
+                          ...combinedStyles.status,
+                          ...(deposit.status === 'approved' ? combinedStyles.approved :
+                          deposit.status === 'pending' ? combinedStyles.pending : combinedStyles.rejected)
+                        }}>
+                          {deposit.status.charAt(0).toUpperCase() + deposit.status.slice(1)}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
-        
-        {activeTab === 'deposit' ? (
-          <>
-            <h2 style={currentStyles.title}>Deposit Money</h2>
-            
-            {success && (
-              <div style={styles.successMessage}>
-                <FiCheck size={18} />
-                <span>
-                  {formData.method === 'check' 
-                    ? 'Check deposit submitted successfully! It will be reviewed within 1-3 business days.' 
-                    : 'Deposit successful! Your account has been credited.'}
-                </span>
-              </div>
-            )}
-            
-            {error && <div style={styles.error}><FiAlertCircle size={14} style={{marginRight: '5px'}} />{error}</div>}
-            
-            <form onSubmit={handleSubmit}>
-              <div style={currentStyles.depositMethods}>
-                <div 
-                  style={{
-                    ...styles.depositMethod, 
-                    ...(formData.method === 'direct' ? styles.depositMethodActive : {})
-                  }}
-                  onClick={() => selectMethod('direct')}
-                >
-                  <FiArrowDownLeft style={styles.depositIcon} />
-                  <div>Direct Deposit</div>
-                </div>
-                <div 
-                  style={{
-                    ...styles.depositMethod, 
-                    ...(formData.method === 'check' ? styles.depositMethodActive : {})
-                  }}
-                  onClick={() => selectMethod('check')}
-                >
-                  <FiCheck style={styles.depositIcon} />
-                  <div>Check Deposit</div>
-                </div>
-                <div 
-                  style={{
-                    ...styles.depositMethod, 
-                    ...(formData.method === 'wire' ? styles.depositMethodActive : {})
-                  }}
-                  onClick={() => selectMethod('wire')}
-                >
-                  <FiClock style={styles.depositIcon} />
-                  <div>Wire Transfer</div>
-                </div>
-              </div>
-              
-              <div style={styles.processingTime}>
-                <FiClock size={16} />
-                <span>Processing time: {processingTimes[formData.method as keyof typeof processingTimes]}</span>
-              </div>
-              
-              <div style={styles.methodDetails}>
-                {formData.method === 'direct' && (
-                  "Use this option for direct deposits from your employer, government benefits, or other recurring payments."
-                )}
-                {formData.method === 'check' && (
-                  "Deposit checks by uploading clear images of the front and back of your endorsed check."
-                )}
-                {formData.method === 'wire' && (
-                  "Wire transfers are typically used for large amounts and provide same-day availability when received before the cutoff time."
-                )}
-              </div>
-              
-              {formData.method === 'check' && (
-                <>
-                  <div 
-                    style={{
-                      ...styles.uploadSection,
-                      ...(checkImage ? styles.uploadSectionActive : {})
-                    }}
-                    onClick={triggerFileInput}
-                  >
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      style={styles.fileInput}
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                    />
-                    
-                    {!checkImage ? (
-                      <>
-                        <FiCamera style={styles.uploadIcon} />
-                        <div style={styles.uploadText}>
-                          Click to upload a photo of your check
-                        </div>
-                        <div style={styles.uploadText}>
-                          (Front side with endorsement)
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <img src={checkImage} alt="Check" style={styles.uploadPreview} />
-                        <div style={styles.uploadText}>
-                          Click to change image
-                        </div>
-                      </>
-                    )}
-                    
-                    {uploadProgress > 0 && uploadProgress < 100 && (
-                      <div style={styles.progressContainer}>
-                        <div style={{
-                          ...styles.progressBar,
-                          width: `${uploadProgress}%`
-                        }} />
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div style={styles.infoBox}>
-                    <FiInfo size={16} style={styles.infoIcon} />
-                    <div>
-                      <strong>Check Deposit Guidelines:</strong>
-                      <ul style={{marginTop: '5px', paddingLeft: '20px'}}>
-                        <li>Endorse the back of your check</li>
-                        <li>Write "For Mobile Deposit Only"</li>
-                        <li>Ensure the check is well-lit and clearly visible</li>
-                        <li>Funds will be available after review (1-3 business days)</li>
-                      </ul>
-                    </div>
-                  </div>
-                </>
-              )}
-              
-              <div style={styles.formGroup}>
-                <label style={styles.label} htmlFor="toAccount">Deposit To</label>
-                <select 
-                  id="toAccount" 
-                  name="toAccount" 
-                  value={formData.toAccount} 
-                  onChange={handleInputChange}
-                  style={styles.select}
-                  required
-                >
-                  <option value="">Select Account</option>
-                  {userAccounts.map(account => (
-                    <option key={account.accountNumber} value={account.accountNumber}>
-                      {account.type.charAt(0).toUpperCase() + account.type.slice(1)} Account (•••{account.accountNumber.slice(-4)}) - {formatCurrency(account.balance)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              
-              <div style={styles.formGroup}>
-                <label style={styles.label} htmlFor="amount">Amount</label>
-                <input 
-                  type="number" 
-                  id="amount" 
-                  name="amount" 
-                  value={formData.amount} 
-                  onChange={handleInputChange}
-                  style={styles.input}
-                  placeholder="Enter amount"
-                  min="0.01"
-                  step="0.01"
-                  required
-                />
-                <div style={styles.limitInfo}>
-                  <span>Min: $0.01</span>
-                  <span>Max: {formatCurrency(depositLimits[formData.method as keyof typeof depositLimits])}</span>
-                </div>
-              </div>
-              
-              <div style={styles.formGroup}>
-                <label style={styles.label} htmlFor="description">Description (Optional)</label>
-                <input 
-                  type="text" 
-                  id="description" 
-                  name="description" 
-                  value={formData.description} 
-                  onChange={handleInputChange}
-                  style={styles.input}
-                  placeholder="e.g., Salary, Refund"
-                />
-              </div>
-              
-              <button 
-                type="submit" 
-                style={{
-                  ...styles.button,
-                  opacity: isProcessing ? 0.7 : 1,
-                  cursor: isProcessing ? 'not-allowed' : 'pointer'
-                }}
-                disabled={isProcessing}
-              >
-                {isProcessing ? 'Processing...' : 'Complete Deposit'}
-              </button>
-              
-              <div style={styles.securityNotice}>
-                <FiLock size={14} />
-                <span>All deposits are encrypted and securely processed according to federal banking regulations.</span>
-              </div>
-            </form>
-          </>
-        ) : (
-          <>
-            <h2 style={currentStyles.title}>Deposit History</h2>
-            
-            {userDeposits.length === 0 ? (
-              <p>No recent deposits found.</p>
-            ) : (
-              <div style={styles.tableContainer}>
-                <table style={styles.table}>
-                  <thead>
-                    <tr>
-                      <th style={currentStyles.th}>Date</th>
-                      <th style={currentStyles.th}>Account</th>
-                      <th style={currentStyles.th}>Amount</th>
-                      <th style={currentStyles.th}>Description</th>
-                      <th style={currentStyles.th}>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {userDeposits.map(deposit => (
-                      <tr key={deposit.id}>
-                        <td style={currentStyles.td}>
-                          {new Date(deposit.date).toLocaleDateString()}
-                        </td>
-                        <td style={currentStyles.td}>
-                          •••{deposit.receiverAccount.slice(-4)}
-                        </td>
-                        <td style={currentStyles.td}>
-                          {formatCurrency(deposit.amount)}
-                        </td>
-                        <td style={currentStyles.td}>
-                          {deposit.description}
-                        </td>
-                        <td style={currentStyles.td}>
-                          <span style={{
-                            ...styles.status,
-                            ...(deposit.status === 'approved' ? styles.approved : 
-                              deposit.status === 'pending' ? styles.pending : styles.rejected)
-                          }}>
-                            {deposit.status.charAt(0).toUpperCase() + deposit.status.slice(1)}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </>
-        )}
-      </div>
+      )}
     </div>
   )
 } 
