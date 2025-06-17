@@ -239,7 +239,7 @@ export default function Dashboard() {
   const [showAlertDemo, setShowAlertDemo] = useState(false)
   const isMobile = useIsMobile()
   const [currentSlide, setCurrentSlide] = useState(0)
-  const [accountsPerSlide, setAccountsPerSlide] = useState(3)
+  const [accountsPerSlide, setAccountsPerSlide] = useState(1)
 
   // Use direct store access for each state piece
   const transactions = useStore(state => state.transactions)
@@ -279,13 +279,8 @@ export default function Dashboard() {
   // Adjust accounts per slide based on screen size
   useEffect(() => {
     const updateAccountsPerSlide = () => {
-      if (window.innerWidth < 640) { // Mobile
-        setAccountsPerSlide(1);
-      } else if (window.innerWidth < 1024) { // Tablet
-        setAccountsPerSlide(2);
-      } else { // Desktop
-        setAccountsPerSlide(3);
-      }
+      // Always show 1 account per slide for better visibility
+      setAccountsPerSlide(1);
     };
 
     updateAccountsPerSlide();
@@ -399,7 +394,10 @@ export default function Dashboard() {
 
   // Trigger alert when creating a savings account
   const handleCreateSavingsAccount = async () => {
-    if (!currentUser) return;
+    if (!currentUser) {
+      console.error("Cannot create savings account: No user is logged in");
+      return;
+    }
     
     // Check if user already has 2 or more savings accounts
     const userSavingsAccounts = userAccounts.filter(account => account.type === 'savings');
@@ -412,6 +410,7 @@ export default function Dashboard() {
     
     try {
       const userId = currentUser.id.toString();
+      console.log("Creating savings account for user ID:", userId);
       const newAccount = await createAccount(userId, 'savings');
       console.log("New savings account created:", newAccount);
       
@@ -552,66 +551,36 @@ export default function Dashboard() {
     })
   }
 
-  // Slider navigation
-  const totalSlides = Math.ceil(userAccounts.length / accountsPerSlide);
-  
-  const nextSlide = () => {
-    setCurrentSlide(prev => (prev + 1) % totalSlides);
-  };
-  
-  const prevSlide = () => {
-    setCurrentSlide(prev => (prev - 1 + totalSlides) % totalSlides);
-  };
-  
-  const goToSlide = (slideIndex: number) => {
-    setCurrentSlide(slideIndex);
-  };
-
   // Get visible accounts for current slide - we'll always show one account per slide for better visibility
   const visibleAccounts = useMemo(() => {
-    // Debug all accounts
-    console.log('All user accounts:', userAccounts);
-    console.log('Current slide:', currentSlide);
-    
-    // For this slider, we specifically want to show exactly one account per slide
-    const accountsPerView = 1;
-    
     const start = currentSlide;
-    const end = start + accountsPerView;
+    const end = start + 1; // Always show exactly one account
     return userAccounts.slice(start, end);
   }, [userAccounts, currentSlide]);
 
-  // Direct creation of a savings account for testing when there are no savings accounts
-  // Comment this out when using the button to create accounts to avoid conflicts
-  /*
-  useEffect(() => {
-    if (isClient && currentUser && userAccounts.length > 0) {
-      const savingsAccounts = userAccounts.filter(account => account.type === 'savings');
-      console.log("Checking for savings accounts:", savingsAccounts);
-      
-      // If there are no savings accounts, create one for testing
-      if (savingsAccounts.length === 0) {
-        console.log("No savings accounts found, creating one directly");
-        
-        // Create a new account directly in the accounts array
-        const nextId = Math.max(...accounts.map(a => a.id)) + 1;
-        const newSavingsAccount = {
-          id: nextId,
-          userId: currentUser.id,
-          accountNumber: `2024-8640-${Math.floor(1000 + Math.random() * 9000)}`,
-          type: 'savings',
-          balance: 10000.00,
-          pendingBalance: 0,
-          interestRate: 2.5
-        };
-        
-        // Add the account to the accounts array
-        setAccounts([...accounts, newSavingsAccount]);
-        console.log("Created direct savings account:", newSavingsAccount);
-      }
-    }
-  }, [isClient, currentUser, userAccounts, accounts, setAccounts]);
-  */
+  // Calculate total number of slides
+  const totalSlides = useMemo(() => {
+    console.log("Total accounts length for slider:", userAccounts.length);
+    return userAccounts.length;
+  }, [userAccounts]);
+
+  // Next slide function
+  const nextSlide = () => {
+    console.log(`Moving from slide ${currentSlide} to ${(currentSlide + 1) % totalSlides}`);
+    setCurrentSlide(prev => (prev + 1) % totalSlides);
+  };
+
+  // Prev slide function
+  const prevSlide = () => {
+    console.log(`Moving from slide ${currentSlide} to ${(currentSlide - 1 + totalSlides) % totalSlides}`);
+    setCurrentSlide(prev => (prev - 1 + totalSlides) % totalSlides);
+  };
+
+  // Go to specific slide
+  const goToSlide = (slideIndex: number) => {
+    console.log(`Jumping to slide ${slideIndex}`);
+    setCurrentSlide(slideIndex);
+  };
 
   // Debug the accounts right after filtering
   useEffect(() => {
@@ -625,6 +594,44 @@ export default function Dashboard() {
       console.log("Visible accounts for slide:", visibleAccounts);
     }
   }, [isClient, accounts, currentUser, userAccounts, visibleAccounts]);
+
+  // Direct creation of a savings account for testing when there are no savings accounts
+  useEffect(() => {
+    if (isClient && currentUser && userAccounts.length > 0) {
+      const savingsAccounts = userAccounts.filter(account => account.type === 'savings');
+      console.log("Checking for savings accounts:", savingsAccounts);
+      
+      // If there are no savings accounts, create one for testing
+      if (savingsAccounts.length === 0) {
+        console.log("No savings accounts found, creating one directly");
+        
+        // Use the createAccount function to create a new savings account
+        const createTestSavingsAccount = async () => {
+          try {
+            const userId = currentUser.id.toString();
+            console.log("Creating test savings account for user ID:", userId);
+            const newAccount = await createAccount(userId, 'savings');
+            console.log("Created test savings account:", newAccount);
+            
+            // Force refresh to show the new account
+            setRefreshKey(prev => prev + 1);
+          } catch (error) {
+            console.error("Error creating test savings account:", error);
+          }
+        };
+        
+        createTestSavingsAccount();
+      }
+    }
+  }, [isClient, currentUser, userAccounts, createAccount, setRefreshKey]);
+
+  // Reset current slide when total slides changes
+  useEffect(() => {
+    if (currentSlide >= totalSlides && totalSlides > 0) {
+      console.log(`Resetting currentSlide from ${currentSlide} to 0 because totalSlides is now ${totalSlides}`);
+      setCurrentSlide(0);
+    }
+  }, [totalSlides, currentSlide]);
 
   if (!isClient) {
     return <div className="loading">Loading...</div>
@@ -746,7 +753,7 @@ export default function Dashboard() {
             transform: `translateX(${-currentSlide * 100}%)`,
           }}
         >
-          {userAccounts.map(account => {
+          {userAccounts.map((account, index) => {
             const isSavings = account.type === 'savings';
             return (
               <div 
